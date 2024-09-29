@@ -48,10 +48,13 @@ public class ShadowTaxi extends AbstractGame {
         if (input.wasPressed(Keys.ESCAPE)){
             Window.close();
         }
+        if (input.wasPressed(Keys.ESCAPE)){
+            Window.close();
+        }
         if(currentFlag == 0 ){
             homeScreen.render();
         }
-      else if (currentFlag == 1) {
+        else if (currentFlag == 1) {
             playerInfoScreen.render(input);
         }
     }
