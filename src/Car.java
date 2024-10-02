@@ -1,6 +1,25 @@
-public class Car extends Entity{
+import bagel.Image;
 
-    public Car(String string, double x, double y, double radius, int speed, int health) {
-        super(string, x, y, radius, speed, health);
+import java.util.Properties;
+
+public class Car extends Entity{
+    private final Image TAXI;
+    private final Image DAMAGE_TAXI;
+    private int speed;
+
+
+    public Car(Properties gameProps) {
+        super(gameProps);
+        this.TAXI = new Image(gameProps.getProperty("gameObjects.taxi.image"));
+        this.DAMAGE_TAXI = new Image(gameProps.getProperty("gameObjects.taxi.damagedImage"));
+
+        setVisible(true);
+    }
+    public void render(){
+        if(getVisible()){
+            TAXI.draw(this.getX(),this.getY());
+        }
     }
 }
+
+

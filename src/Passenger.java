@@ -10,12 +10,13 @@ public class Passenger extends Entity{
     private boolean hasUmbrella;
     private int health;
     private int collisionTimeOut;
+    private double IN_CAR_RADIUS;
     private TripEndFlag tripEndFlag;
     //private final Image BLOOD;
 
     public Passenger(String string, double x, double y, double radius,
-                     int speed, int health, Image blood, int priority,TripEndFlag tripEndFlag) {
-        super(string, x, y, radius, speed, health);
+                     int priority,TripEndFlag tripEndFlag) {
+        super(string, x, y, radius);
         this.tripEndFlag = tripEndFlag;
         this.priority = priority;
         this.pickedUp = false;
@@ -30,7 +31,6 @@ public class Passenger extends Entity{
     public int getPriority() {
         return priority;
     }
-
     public void setPriority(int priority) {
         this.priority = priority;
     }
@@ -42,6 +42,11 @@ public class Passenger extends Entity{
     public boolean hasTripEndFlag() {
         return tripEndFlag != null;
     }
+
+    public void setIN_CAR_RADIUS(double IN_CAR_RADIUS) {
+        this.IN_CAR_RADIUS = IN_CAR_RADIUS;
+    }
+
     public void setDroppedOff(boolean droppedOff) {
         this.droppedOff = droppedOff;
         setVisible(true);

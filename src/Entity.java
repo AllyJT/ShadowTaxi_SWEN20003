@@ -9,26 +9,18 @@ public class Entity {
     private double radius;
     private boolean visible = true;
     private int speed;
-    private int health;
+    private double health;
     private Properties GAME_PROPS;
 
     public Entity(Properties gameProps) {
         this.GAME_PROPS = gameProps;
     }
 
-    public Entity(String string, double x, double y){
+
+    public Entity(String string, double x, double y, double radius) {
         this.image = new Image(string);
         this.x = x;
         this.y = y;
-    }
-    public Entity(String string, double x, double y , double radius,int speed,
-                  int health) {
-        this.image = new Image(string);
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.speed = speed;
-        this.health = health;
     }
 
 
@@ -64,16 +56,19 @@ public class Entity {
         this.y = y;
     }
 
-    public int getHealth() {
+    public double getHealth() {
         return health;
     }
 
-    public void setHealth(int health) {
+    public void setHealth(double health) {
         this.health = health;
     }
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+    public boolean getVisible(){
+        return visible;
     }
 
     /**
