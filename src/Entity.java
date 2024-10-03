@@ -40,6 +40,10 @@ public class Entity {
         return radius;
     }
 
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
     public double getX() {
         return x;
     }

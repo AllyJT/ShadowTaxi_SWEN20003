@@ -1,7 +1,7 @@
 import bagel.Font;
 import bagel.Image;
 
-public class Passenger extends Entity{
+public class Passenger extends Entity implements TakeDamage{
     private int priority;
     private boolean pickedUp;
     private boolean droppedOff;
@@ -24,6 +24,10 @@ public class Passenger extends Entity{
 
     }
 
+    public void setHasUmbrella(boolean hasUmbrella) {
+        this.hasUmbrella = hasUmbrella;
+    }
+
     /**
      * extra getters and setters
      */
@@ -37,6 +41,10 @@ public class Passenger extends Entity{
     public void setTripEndFlag(TripEndFlag tripEndFlag) {
         this.tripEndFlag = tripEndFlag;
         this.setVisible(true);
+    }
+
+    public TripEndFlag getTripEndFlag() {
+        return tripEndFlag;
     }
 
     public boolean hasTripEndFlag() {
@@ -58,6 +66,46 @@ public class Passenger extends Entity{
     /**
      * methods
      */
+
+
+    /* Pickup and Dropped off */
+    public boolean isPickedUp() {
+        return pickedUp;
+    }
+    /**
+     * Set the stage of passenger, along with the visibility of flag
+     * Flag only visible when we have a passenger on it
+     * @param pickedUp
+     */
+    public void setPickedUp(boolean pickedUp) {
+        this.pickedUp = pickedUp;
+        setVisible(!pickedUp);
+        if (tripEndFlag != null) {
+            tripEndFlag.setVisible(pickedUp);
+        }
+    }
+
+    /**
+     * Move the passenger to the flag when the trip ended
+     * The passenger move at speed 1 pixel
+     */
+
+    public void moveToFlag(int speedX, int speedY) {
+        if (hasTripEndFlag() && isDroppedOff()) {
+
+            if (Utilities.getEuclideanDistance(tripEndFlag.getX(), tripEndFlag.getY(), this.getX(), this.getY()) > 1) {
+                //move the passenger if they see flag
+                this.setX(this.getX() + Utilities.clamp(tripEndFlag.getX() - this.getX(), -speedX, speedX));
+                this.setY(this.getY() + Utilities.clamp(tripEndFlag.getY() - this.getY(), -speedY, speedY));
+                if (Utilities.getEuclideanDistance(tripEndFlag.getX(), tripEndFlag.getY(), this.getX(), this.getY()) <= 1) {
+                    tripEndFlag.setVisible(false);
+
+                }
+
+            }
+        }
+
+    }
 
     /**
      * Check the priority of the passenger and get the rate
@@ -96,4 +144,13 @@ public class Passenger extends Entity{
         return this.expectedValue;
     }
 
+    @Override
+    public void takeDamage(Entity Damage) {
+
+    }
+
+    @Override
+    public boolean hasCollied() {
+        return false;
+    }
 }

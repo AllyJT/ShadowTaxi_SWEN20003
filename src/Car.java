@@ -1,24 +1,154 @@
+import bagel.Font;
 import bagel.Image;
 
 import java.util.Properties;
 
-public class Car extends Entity{
+public class Car extends Entity implements CoinActivate, Invincible{
     private final Image TAXI;
     private final Image DAMAGE_TAXI;
+    private Passenger passenger = null;
+    private boolean isStop;
+    private boolean isDropped;
+
+    //private final double RADIUS;
+    private boolean stop;
     private int speed;
+    private Font healthValueFont;
 
+   /* text */
+    private String TAXI_TEXT;
 
-    public Car(Properties gameProps) {
+   /* X and Y */
+    private int healthValueX;
+    private int healthValueY;
+
+    public Car(Properties gameProps, Properties messProps) {
         super(gameProps);
         this.TAXI = new Image(gameProps.getProperty("gameObjects.taxi.image"));
         this.DAMAGE_TAXI = new Image(gameProps.getProperty("gameObjects.taxi.damagedImage"));
+        /* TAXI HEALTH */
+        this.setHealth(Double.parseDouble(gameProps.getProperty("gameObjects.taxi.health")));
+        this.TAXI_TEXT = messProps.getProperty("gamePlay.taxiHealth");
 
+        this.stop = true;
         setVisible(true);
     }
+    /*SETTERS AND GETTER */
+    public int getHealthValueX() {
+        return healthValueX;
+    }
+
+    public int getHealthValueY() {
+        return healthValueY;
+    }
+
+    public void setHealthValueX(int healthValueX) {
+        this.healthValueX = healthValueX;
+    }
+
+    public void setHealthValueY(int healthValueY) {
+        this.healthValueY = healthValueY;
+    }
+
+    public void setHealthValueFont(Font healthValueFont) {
+        this.healthValueFont = healthValueFont;
+    }
+
+    public Font getHealthValueFont() {
+        return healthValueFont;
+    }
+
+    public boolean isStop() {
+        return isStop;
+    }
+
+    public void setStop(boolean stop) {
+        isStop = stop;
+    }
+
+    public Passenger getPassenger() {
+        return passenger;
+    }
+
+    /* render */
+
     public void render(){
         if(getVisible()){
             TAXI.draw(this.getX(),this.getY());
+            renderHealth();
         }
+    }
+
+    public void renderHealth(){
+        healthValueFont.drawString(TAXI_TEXT + this.getHealth()*100,
+                this.getHealthValueX(),this.getHealthValueY());
+    }
+
+    public boolean isStopped(){
+        return stop;
+    }
+    public void setStopped(boolean stop) {
+        this.stop = stop;
+    }
+
+    /* PICK AND DROP OFF PASSENGER */
+    /**
+     * Pick up the passenger when the condition are met
+     * @param passenger check if the passenger condition is meet
+     */
+    public void pickUpPassenger(Passenger passenger){
+        if( isStopped() && !hasPassenger() &&
+                Utilities.getEuclideanDistance(this.getX(),this.getY(),passenger.getX(),
+                        passenger.getY()) <= 100){
+            if (!passenger.isPickedUp()) {
+                if(Utilities.getEuclideanDistance(this.getX(),this.getY(),passenger.getX(),passenger.getY()) <= 1){
+                    passenger.setPickedUp(true);
+                    passenger.render();
+                    this.passenger = passenger;
+//                    isFinish = false;
+//                    priority = this.passenger.getPriority();
+//                    expectedPay = this.passenger.getExpectedValue();
+                }
+                else {
+                    //move the passenger if they not in car
+                    passenger.setX(passenger.getX() + Utilities.clamp(this.getX()- passenger.getX(),-1,1));
+                    passenger.setY(passenger.getY() + Utilities.clamp(this.getY() - passenger.getY() ,-1,1));
+
+                }
+            }
+
+        }
+
+    }
+
+    /**
+     * Drop off the passenger when the condition are met
+     */
+    public void dropOffPassenger(){
+        if( isStopped() && hasPassenger()) {
+            this.getPassenger().setX(this.getX());
+            this.getPassenger().setY(this.getY());
+            if ((Utilities.getEuclideanDistance(this.getX(), this.getY(), passenger.getTripEndFlag().getX(),
+                    passenger.getTripEndFlag().getY()) <= passenger.getTripEndFlag().getRadius() )||
+                    (passenger.getY() <= passenger.getTripEndFlag().getY())
+            ){  this.passenger.setDroppedOff(true);
+                isDropped = true;
+//                isFinish = true;
+//                renderLastTrip(FONT_GAME,passengerStrings,tripStatusX,tripStatusY);
+//                this.coin = null;
+                this.passenger = null;
+
+            }
+        }
+    }
+    //check if the taxi have passenger in it
+    public boolean hasPassenger(){
+        return passenger != null ;
+    }
+
+
+    public boolean isDropped() {
+        return isDropped;
     }
 }
 

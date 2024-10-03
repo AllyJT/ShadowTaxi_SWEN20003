@@ -14,23 +14,32 @@ public class GameScreen {
     private TripEndFlag tripEndFlag;
     private Coin coin;
     private InviciblePower inviciblePower;
+
+    private Car car;
+    private Driver driver;
     private Font font;
 
     private int currentFrame;
 
     private Properties GAME_PROPS;
+    private Properties MESSAGE_PROPS;
 
     private final double[] gameplayValues;
     private final String[][] GAME_OBJECT;
 
-    private Car car;
+    private int powerX;
+    private int powerY;
 
     public GameScreen(Properties gameProps, Properties messageProps) {
         this.speed = Integer.parseInt(gameProps.getProperty("gameObjects.taxi.speedY"));
         road = new Road(gameProps, speed);
         this.GAME_PROPS = gameProps;
+        this.MESSAGE_PROPS = messageProps;
         this.currentFrame = Integer.parseInt(gameProps.getProperty("gamePlay.maxFrames"));
         font = new Font(gameProps.getProperty("font"), Integer.parseInt(gameProps.getProperty("gamePlay.info.fontSize")));
+        /* coin frame */
+        powerX = Integer.parseInt(gameProps.getProperty("gameplay.coin.x"));
+        powerY = Integer.parseInt(gameProps.getProperty("gameplay.coin.y"));
 
         gameplayValues = new double[6];
         gameplayValues[0] = Double.parseDouble(gameProps.getProperty("gamePlay.earnings.x"));
@@ -56,18 +65,25 @@ public class GameScreen {
         for (String[] row : GAME_OBJECT) {
             switch (row[0]) {
                 case "TAXI":
-                    car = new Car(GAME_PROPS);
+                    car = new Car(GAME_PROPS, MESSAGE_PROPS);
                     car.setX(Double.parseDouble(row[1]));
                     car.setY(Double.parseDouble(row[2]));
                     car.setSpeed(Integer.parseInt(GAME_PROPS.getProperty("gameObjects.taxi.speedX")));
-                    car.setHealth(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.taxi.health")));
-
+                    car.setRadius(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.taxi.radius")));
+                    car.setHealthValueFont(font);
+                    car.setHealthValueX(Integer.parseInt(GAME_PROPS.getProperty("gamePlay.taxiHealth.x")));
+                    car.setHealthValueY(Integer.parseInt(GAME_PROPS.getProperty("gamePlay.taxiHealth.y")));
+                    break;
+                case "DRIVER":
+                    driver = new Driver(GAME_PROPS.getProperty("gameObjects.driver.image"),
+                            car.getX(),car.getY(),
+                            Double.parseDouble(GAME_PROPS.getProperty("gameObjects.driver.radius")));
                     break;
 
                 case "PASSENGER":
                     passenger = new Passenger(GAME_PROPS.getProperty("gameObjects.passenger.image"),
                             Double.parseDouble(row[1]),Double.parseDouble(row[2]),
-                            Double.parseDouble(GAME_PROPS.getProperty("gameObjects.passenger.taxiDetectRadius")),
+                            Double.parseDouble(GAME_PROPS.getProperty("gameObjects.passenger.radius")),
                             Integer.parseInt(row[3]), tripEndFlag);
                     tripEndFlag = new TripEndFlag(GAME_PROPS.getProperty("gameObjects.tripEndFlag.image"),
                             Double.parseDouble(row[4]),
@@ -77,6 +93,7 @@ public class GameScreen {
                     passenger.setIN_CAR_RADIUS(Double.parseDouble(
                             GAME_PROPS.getProperty("gameObjects.passenger.taxiGetInRadius")));
                     passenger.setSpeed(speed);
+                    passenger.setHasUmbrella(Integer.parseInt(row[6]) != 0);
                     tripEndFlag.setSpeed(speed);
                     passengerList.add(passenger);
                     tripEndFlagList.add(tripEndFlag);
@@ -87,6 +104,7 @@ public class GameScreen {
                             Double.parseDouble(row[1]),Double.parseDouble(row[2]),
                             Double.parseDouble(GAME_PROPS.getProperty("gameObjects.coin.radius")));
                     coin.setSpeed(speed);
+                    coin.setDuration(Integer.parseInt(GAME_PROPS.getProperty("gameObjects.coin.maxFrames")));
                     coinList.add(coin);
                     break;
                 case "INVINCIBLE_POWER":
@@ -94,8 +112,11 @@ public class GameScreen {
                             Double.parseDouble(row[1]), Double.parseDouble(row[2]),
                             Double.parseDouble(GAME_PROPS.getProperty("gameObjects.invinciblePower.radius")));
                     inviciblePower.setSpeed(speed);
+                    inviciblePower.setRadius(Double.parseDouble(
+                            GAME_PROPS.getProperty("gameObjects.invinciblePower.radius")));
+                    inviciblePower.setDURATION(Integer.parseInt(
+                            GAME_PROPS.getProperty("gameObjects.invinciblePower.maxFrames")));
                     inviciblePowerList.add(inviciblePower);
-
 
             }
 
@@ -116,12 +137,32 @@ public class GameScreen {
         font.drawString(String.valueOf(currentFrame), gameplayValues[4], gameplayValues[5]);
 
         for(Coin coin : coinList){
+            //coin.setVisible(false);
+            coin.colliedWithCoin(car);
             coin.render();
+            coin.updateCoinPower();
+            if(coin.getPowerIsActive()) {
+                coin.renderCoinPowerFrame(font, powerX, powerY);
+            }
         }
+
         for(Passenger passenger : passengerList){
+            car.pickUpPassenger(passenger);
+            if(passenger.isPickedUp() && passenger.hasTripEndFlag()){
+                passenger.getTripEndFlag().render();
+            }
+            int passengerSpeedX = Integer.parseInt(GAME_PROPS.getProperty("gameObjects.passenger.walkSpeedX"));
+            int passengerSpeedY = Integer.parseInt(GAME_PROPS.getProperty("gameObjects.passenger.walkSpeedY"));
+            passenger.moveToFlag(passengerSpeedX,passengerSpeedY);
             passenger.render();
         }
+        for (TripEndFlag tripEndFlag : tripEndFlagList){
+            //car.renderPay(FONT_GAME,gameplayStrings,gameplayValues);
+            car.dropOffPassenger();
+        }
         for(InviciblePower inviciblePower : inviciblePowerList) {
+            inviciblePower.colliedWithInvincible(car);
+            inviciblePower.colliedWithInvincible(driver);
             inviciblePower.render();
         }
 
