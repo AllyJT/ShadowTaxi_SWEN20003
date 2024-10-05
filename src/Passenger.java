@@ -1,7 +1,7 @@
 import bagel.Font;
 import bagel.Image;
 
-public class Passenger extends Entity implements TakeDamage{
+public class Passenger extends Entity implements TakeDamage, Damageable{
     private int priority;
     private boolean pickedUp;
     private boolean droppedOff;
@@ -145,12 +145,17 @@ public class Passenger extends Entity implements TakeDamage{
     }
 
     @Override
-    public void takeDamage(Entity Damage) {
+    public void takeDamage(Damageable Damage) {
 
     }
 
     @Override
     public boolean hasCollied() {
         return false;
+    }
+
+    @Override
+    public int getDamage() {
+        return 0;
     }
 }

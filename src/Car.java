@@ -3,7 +3,7 @@ import bagel.Image;
 
 import java.util.Properties;
 
-public class Car extends Entity implements CoinActivate, Invincible{
+public class Car extends Entity implements CoinActivate, Invincible, Attack{
     private final Image TAXI;
     private final Image DAMAGE_TAXI;
     private Passenger passenger = null;
@@ -13,6 +13,7 @@ public class Car extends Entity implements CoinActivate, Invincible{
     //private final double RADIUS;
     private boolean stop;
     private int speed;
+    private double damage;
     private Font healthValueFont;
 
    /* text */
@@ -150,6 +151,23 @@ public class Car extends Entity implements CoinActivate, Invincible{
     public boolean isDropped() {
         return isDropped;
     }
+
+    @Override
+    public void setInvincible(boolean b) {
+
+    }
+
+    @Override
+    public void inflicDamage(Damageable damageableEntity) {
+
+    }
+
+    @Override
+    public void setDamage(double damage) {
+        this.damage = damage;
+    }
+
+
 }
 
 

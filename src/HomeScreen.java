@@ -29,6 +29,5 @@ public class HomeScreen {
                 MESSAGE_Y);
         ENTER_FONT.drawString(ENTER_MESSAGE, (Window.getWidth() - enterWidth) / 2.0,
                 ENTER_Y);
-        //return input.wasPressed(Keys.ENTER);
     }
 }

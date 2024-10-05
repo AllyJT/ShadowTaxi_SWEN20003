@@ -10,6 +10,8 @@ import java.util.Properties;
 public class GameScreen {
     private int speed;
     private Road road;
+    private OtherCar otherCar;
+    private EnemyCar enemyCar;
     private Passenger passenger;
     private TripEndFlag tripEndFlag;
     private Coin coin;
@@ -165,6 +167,7 @@ public class GameScreen {
             inviciblePower.colliedWithInvincible(driver);
             inviciblePower.render();
         }
+        renderOtherCar();
 
     }
     /**
@@ -193,8 +196,38 @@ public class GameScreen {
             for(InviciblePower inviciblePower : inviciblePowerList) {
                 inviciblePower.moveDown();
             }
-
-
+        }
+    }
+    List<OtherCar> otherCarList = new ArrayList<>();
+    List<EnemyCar> enemyCarList = new ArrayList<>();
+    public void renderOtherCar(){
+        if(MiscUtils.canSpawn(200)){
+            otherCar = new OtherCar(GAME_PROPS);
+            otherCar.setSpeed(MiscUtils.getRandomInt(2,5));
+            otherCar.setDamage(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.otherCar.damage"))*100);
+            otherCar.setHealth(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.otherCar.health"))*100);
+            otherCarList.add(otherCar);;
+        }
+        if(MiscUtils.canSpawn(400)){
+            enemyCar = new EnemyCar(GAME_PROPS);
+            enemyCar.setSpeed(MiscUtils.getRandomInt(Integer.parseInt(GAME_PROPS.getProperty("gameObjects.enemyCar.minSpeedY")),
+                    Integer.parseInt(GAME_PROPS.getProperty("gameObjects.enemyCar.maxSpeedY"))));
+            enemyCar.setDamage(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.enemyCar.health"))*100);
+            enemyCar.setHealth(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.enemyCar.damage"))*100);
+            enemyCarList.add(enemyCar);
+        }
+        if(!otherCarList.isEmpty()) {
+            for (OtherCar otherCar : otherCarList) {
+                otherCar.moveUp();
+                otherCar.render();
+            }
+        }
+        if(!enemyCarList.isEmpty()) {
+            for (EnemyCar enemyCar : enemyCarList) {
+                enemyCar.shootFire();
+                enemyCar.moveUp();
+                enemyCar.render();
+            }
         }
     }
 

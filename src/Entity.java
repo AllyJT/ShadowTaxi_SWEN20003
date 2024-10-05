@@ -22,7 +22,10 @@ public class Entity {
         this.x = x;
         this.y = y;
     }
-
+    public Entity(double x, double y){
+        this.x = x;
+        this.y = y;
+    }
 
 
     /**
@@ -34,6 +37,10 @@ public class Entity {
 
     public void setImage(Image image) {
         this.image = image;
+    }
+
+    public Image getImage() {
+        return image;
     }
 
     public double getRadius() {
@@ -80,6 +87,9 @@ public class Entity {
      */
     public void moveDown(){
         y+= speed;
+    }
+    public void moveUp(){
+        y-= speed;
     }
     public void moveLeft(){
         x-= speed;

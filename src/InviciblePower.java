@@ -20,6 +20,7 @@ public class InviciblePower extends Entity{
                 this.setVisible(false);
                 this.isInvincible = true;
                 this.invincibleTime = 0;
+                obj.setInvincible(true);
                 setCollied();
 
             }
