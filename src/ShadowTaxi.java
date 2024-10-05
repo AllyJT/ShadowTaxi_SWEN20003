@@ -4,7 +4,7 @@ import java.util.Properties;
 /**
  * Skeleton Code for SWEN20003 Project 2, Semester 2, 2024
  * Please enter your name below
- * @author
+ * @author Phuong Trang Tran
  */
 public class ShadowTaxi extends AbstractGame {
 

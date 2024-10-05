@@ -11,6 +11,8 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
     private int health;
     private int collisionTimeOut;
     private double IN_CAR_RADIUS;
+    private double radius;
+    private double DETECT_RADIUS;
     private TripEndFlag tripEndFlag;
     //private final Image BLOOD;
 
@@ -24,13 +26,25 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
 
     }
 
+
+
+   /* Getters and setters */
     public void setHasUmbrella(boolean hasUmbrella) {
         this.hasUmbrella = hasUmbrella;
     }
 
-    /**
-     * extra getters and setters
-     */
+    public void setDETECT_RADIUS(double DETECT_RADIUS) {
+        this.DETECT_RADIUS = DETECT_RADIUS;
+    }
+
+    public double getDETECT_RADIUS() {
+        return DETECT_RADIUS;
+    }
+
+    public double getIN_CAR_RADIUS() {
+        return IN_CAR_RADIUS;
+    }
+
 
     public int getPriority() {
         return priority;

@@ -67,14 +67,6 @@ public class Entity {
         this.y = y;
     }
 
-    public double getHealth() {
-        return health;
-    }
-
-    public void setHealth(double health) {
-        this.health = health;
-    }
-
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
