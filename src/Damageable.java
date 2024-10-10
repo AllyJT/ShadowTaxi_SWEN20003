@@ -1,4 +1,5 @@
 
 public interface Damageable {
-    int getDamage();
+    double getHealth();
+    void setHealth(double health);
 }

@@ -1,7 +1,6 @@
 import bagel.Font;
 import bagel.Input;
 import bagel.Keys;
-import bagel.Window;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +14,7 @@ public class GameScreen {
     private Passenger passenger;
     private TripEndFlag tripEndFlag;
     private Coin coin;
+    private Coin newestCoin = null;
     private InviciblePower inviciblePower;
 
     private Taxi taxi;
@@ -63,6 +63,7 @@ public class GameScreen {
     List<Passenger> passengerList = new ArrayList<>();
     List<TripEndFlag> tripEndFlagList = new ArrayList<>();
     List<InviciblePower> inviciblePowerList = new ArrayList<>();
+
     public void gameLoops() {
         for (String[] row : GAME_OBJECT) {
             switch (row[0]) {
@@ -70,21 +71,23 @@ public class GameScreen {
                     taxi = new Taxi(GAME_PROPS, MESSAGE_PROPS);
                     taxi.setX(Double.parseDouble(row[1]));
                     taxi.setY(Double.parseDouble(row[2]));
+                    taxi.setDamage(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.taxi.damage"))*100);
                     taxi.setSpeed(Integer.parseInt(GAME_PROPS.getProperty("gameObjects.taxi.speedX")));
                     taxi.setRadius(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.taxi.radius")));
+
                     taxi.setHealthValueFont(font);
                     taxi.setHealthValueX(Integer.parseInt(GAME_PROPS.getProperty("gamePlay.taxiHealth.x")));
                     taxi.setHealthValueY(Integer.parseInt(GAME_PROPS.getProperty("gamePlay.taxiHealth.y")));
                     break;
                 case "DRIVER":
                     driver = new Driver(GAME_PROPS.getProperty("gameObjects.driver.image"),
-                            taxi.getX(),taxi.getY(),
+                            taxi.getX(), taxi.getY(),
                             Double.parseDouble(GAME_PROPS.getProperty("gameObjects.driver.radius")));
                     break;
 
                 case "PASSENGER":
                     passenger = new Passenger(GAME_PROPS.getProperty("gameObjects.passenger.image"),
-                            Double.parseDouble(row[1]),Double.parseDouble(row[2]),
+                            Double.parseDouble(row[1]), Double.parseDouble(row[2]),
                             Double.parseDouble(GAME_PROPS.getProperty("gameObjects.passenger.radius")),
                             Integer.parseInt(row[3]), tripEndFlag);
                     tripEndFlag = new TripEndFlag(GAME_PROPS.getProperty("gameObjects.tripEndFlag.image"),
@@ -107,7 +110,7 @@ public class GameScreen {
                     break;
                 case "COIN":
                     coin = new Coin(GAME_PROPS.getProperty("gameObjects.coin.image"),
-                            Double.parseDouble(row[1]),Double.parseDouble(row[2]),
+                            Double.parseDouble(row[1]), Double.parseDouble(row[2]),
                             Double.parseDouble(GAME_PROPS.getProperty("gameObjects.coin.radius")));
                     coin.setSpeed(speed);
                     coin.setDuration(Integer.parseInt(GAME_PROPS.getProperty("gameObjects.coin.maxFrames")));
@@ -139,102 +142,175 @@ public class GameScreen {
         }
         road.render();
         drivingCar(input);
+        hitAndMove(); //msfmisfiods
+
         taxi.render();
         font.drawString(String.valueOf(currentFrame), gameplayValues[4], gameplayValues[5]);
+        taxi.renderHealth();
 
-        for(Coin coin : coinList){
+        for (Coin coin : coinList) {
             //coin.setVisible(false);
             coin.colliedWithCoin(taxi);
             coin.render();
             coin.updateCoinPower();
-            if(coin.getPowerIsActive()) {
-                coin.renderCoinPowerFrame(font, powerX, powerY);
+            if (coin.getPowerIsActive()) {
+                newestCoin = coin;
             }
         }
+        if(newestCoin != null && newestCoin.getPowerIsActive()){
+            newestCoin.renderCoinPowerFrame(font, powerX, powerY);
+        }
 
-        for(Passenger passenger : passengerList){
+        for (Passenger passenger : passengerList) {
             taxi.pickUpPassenger(passenger);
-            if(passenger.isPickedUp() && passenger.hasTripEndFlag()){
+            if (passenger.isPickedUp() && passenger.hasTripEndFlag()) {
                 passenger.getTripEndFlag().render();
             }
             int passengerSpeedX = Integer.parseInt(GAME_PROPS.getProperty("gameObjects.passenger.walkSpeedX"));
             int passengerSpeedY = Integer.parseInt(GAME_PROPS.getProperty("gameObjects.passenger.walkSpeedY"));
-            passenger.moveToFlag(passengerSpeedX,passengerSpeedY);
+            passenger.moveToFlag(passengerSpeedX, passengerSpeedY);
             passenger.render();
         }
-        for (TripEndFlag tripEndFlag : tripEndFlagList){
+        for (TripEndFlag tripEndFlag : tripEndFlagList) {
             //car.renderPay(FONT_GAME,gameplayStrings,gameplayValues);
             taxi.dropOffPassenger();
         }
-        for(InviciblePower inviciblePower : inviciblePowerList) {
+        for (InviciblePower inviciblePower : inviciblePowerList) {
             inviciblePower.colliedWithInvincible(taxi);
             inviciblePower.colliedWithInvincible(driver);
             inviciblePower.render();
         }
+        if(currentCollidedCar != null && isCollided){
+            currentCollidedCar.render();
+        }
         renderOtherCar();
 
     }
+
     /**
      * Driving the taxi using the left or right arrow key
      */
-    private void drivingCar(Input input){
-        if(input.wasPressed(Keys.LEFT)|| input.isDown(Keys.LEFT)){
+    private void drivingCar(Input input) {
+        if (input.wasPressed(Keys.LEFT) || input.isDown(Keys.LEFT)) {
             taxi.moveLeft();
-        } else if (input.wasPressed(Keys.RIGHT)||input.isDown(Keys.RIGHT)) {
+        } else if (input.wasPressed(Keys.RIGHT) || input.isDown(Keys.RIGHT)) {
             taxi.moveRight();
         }
-        //car.setStopped(!isMoving(input));
+        taxi.setStop(!isMoving(input));
     }
+
     private void moveObject(Input input) {
         if (input.wasPressed(Keys.UP) || input.isDown(Keys.UP)) {
             road.moveBG();
-            for(Coin coin : coinList){
+            for (Coin coin : coinList) {
                 coin.moveDown();
             }
-            for(Passenger passenger : passengerList){
+            for (Passenger passenger : passengerList) {
                 passenger.moveDown();
             }
-            for(TripEndFlag tripEndFlag : tripEndFlagList){
+            for (TripEndFlag tripEndFlag : tripEndFlagList) {
                 tripEndFlag.moveDown();
             }
-            for(InviciblePower inviciblePower : inviciblePowerList) {
+            for (InviciblePower inviciblePower : inviciblePowerList) {
                 inviciblePower.moveDown();
             }
         }
     }
+
     List<OtherCar> otherCarList = new ArrayList<>();
     List<EnemyCar> enemyCarList = new ArrayList<>();
-    public void renderOtherCar(){
-        if(MiscUtils.canSpawn(200)){
+
+    public void renderOtherCar() {
+        if (MiscUtils.canSpawn(100)) {
             otherCar = new OtherCar(GAME_PROPS);
-            otherCar.setSpeed(MiscUtils.getRandomInt(2,5));
-            otherCar.setDamage(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.otherCar.damage"))*100);
-            otherCar.setHealth(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.otherCar.health"))*100);
-            otherCarList.add(otherCar);;
+            otherCar.setSpeed(MiscUtils.getRandomInt(2, 5));
+            //otherCar.setDamage(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.otherCar.damage")) * 100);
+            otherCar.setHealth(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.otherCar.health")) * 100);
+            otherCarList.add(otherCar);
+
         }
-        if(MiscUtils.canSpawn(400)){
+        if (MiscUtils.canSpawn(400)) {
             enemyCar = new EnemyCar(GAME_PROPS);
             enemyCar.setSpeed(MiscUtils.getRandomInt(Integer.parseInt(GAME_PROPS.getProperty("gameObjects.enemyCar.minSpeedY")),
                     Integer.parseInt(GAME_PROPS.getProperty("gameObjects.enemyCar.maxSpeedY"))));
-            enemyCar.setDamage(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.enemyCar.health"))*100);
-            enemyCar.setHealth(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.enemyCar.damage"))*100);
+            //enemyCar.setDamage(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.enemyCar.health")) * 100);
+            enemyCar.setHealth(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.enemyCar.damage")) * 100);
             enemyCarList.add(enemyCar);
         }
-        if(!otherCarList.isEmpty()) {
+        if (!otherCarList.isEmpty()) {
             for (OtherCar otherCar : otherCarList) {
-                otherCar.moveUp();
-                otherCar.render();
+                if(otherCar.getVisible()) {
+                    otherCar.moveUp();
+                    otherCar.render();
+                }
             }
         }
-        if(!enemyCarList.isEmpty()) {
+        if (!enemyCarList.isEmpty()) {
             for (EnemyCar enemyCar : enemyCarList) {
                 enemyCar.shootFire();
                 enemyCar.moveUp();
                 enemyCar.render();
+
             }
         }
     }
+    public boolean isMoving(Input input){
+        return (input.wasPressed(Keys.LEFT) || input.isDown(Keys.LEFT))
+                || (input.wasPressed(Keys.RIGHT) || input.isDown(Keys.RIGHT))
+                || (input.wasPressed(Keys.UP)|| input.isDown(Keys.UP));
+    }
+    int countDown = 0;
+    boolean isCollided = false;
+    OtherCar currentCollidedCar = null;
 
+    public void hitAndMove() {
+        // Check for collisions and initiate countdown
+        if (!isCollided) {
+            for (OtherCar otherCar : otherCarList) {
+                if (Utilities.checkCollision(otherCar, taxi)) {
+                    isCollided = true;
+                    countDown = 10; // Set the countdown
+                    currentCollidedCar = otherCar;
+                    break; // Exit after the first collision
+                }
+            }
+        }
+
+        // Handle movement and countdown logic if collided
+        if (isCollided) {
+            // Display the countdown
+            font.drawString(String.valueOf(countDown), 500, 500);
+
+            // Move the cars based on their vertical positions
+            if (currentCollidedCar != null) {
+                if (taxi.getY() < currentCollidedCar.getY() && countDown > 0) {
+                    taxi.moveUp(); // Taxi moves up
+                    currentCollidedCar.moveDown(); // Other car moves down
+                } else if(taxi.getY() >= currentCollidedCar.getY() && countDown > 0) {
+                    taxi.moveDown(); // Taxi moves down
+                    currentCollidedCar.moveUp(); // Other car moves up
+                }
+            }
+
+            // Apply damage during collision
+            currentCollidedCar.attack(taxi);
+            taxi.attack(currentCollidedCar);
+
+            // Decrement the countdown
+            countDown--;
+
+            // Reset collision state after countdown
+            if (countDown <= 0) {
+                isCollided = false; // Reset collision state
+                currentCollidedCar = null; // Clear the reference
+            }
+        }
+
+        // Check health after collision handling
+        if (currentCollidedCar != null && currentCollidedCar.getHealth() <= 0) {
+            currentCollidedCar.setVisible(false); // Hide the car if health is zero
+        }
+    }
 
 }
 

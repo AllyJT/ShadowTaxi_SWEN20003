@@ -5,6 +5,7 @@ public class Coin extends Entity{
     private int duration;
     private int coinPower = 0;
     private boolean powerIsActive;
+    private boolean isNewest  = true;
 
     public Coin(String string, double x, double y, double radius) {
         super(string, x, y, radius);
@@ -15,16 +16,16 @@ public class Coin extends Entity{
             //this.setVisible(false);
             if (Utilities.getEuclideanDistance(obj.getX(), obj.getY(), this.getX(), this.getY()) <
                     Utilities.getRadiusDisatance(obj.getRadius(), this.getRadius())) {
-                    this.setVisible(false);
-                    this.powerIsActive = true;
-                    this.coinPower = 0;
-                    setCollied();
+                this.setVisible(false);
+                this.powerIsActive = true;
+                this.coinPower = 0;
+                setCollied(true);
 
             }
         }
     }
-    public void setCollied(){
-        this.isCollied = true;
+    public void setCollied(boolean collied){
+        this.isCollied = collied;
     }
 
     public void setDuration(int duration) {
@@ -33,6 +34,10 @@ public class Coin extends Entity{
 
     public int getCoinPower() {
         return coinPower;
+    }
+
+    public boolean isCollied() {
+        return isCollied;
     }
 
     public void setCoinPower(int coinPower) {

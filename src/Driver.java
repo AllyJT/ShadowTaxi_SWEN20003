@@ -1,29 +1,26 @@
 import java.util.Properties;
 
-public class Driver extends Entity implements  Invincible, Damageable, TakeDamage{
+public class Driver extends Entity implements Invincible,Damageable{
     public boolean isInvincible;
-    public int damage;
+
     public double health;
     public Driver(String string, double x, double y, double radius) {
         super(string, x, y, radius);
         setVisible(false);
     }
 
-    @Override
-    public void takeDamage(Damageable doDamage) {
-        if(!isInvincible){
-            int damageAmount = doDamage.getDamage();
-            health = health - damageAmount;
 
-        }
-    }
-    public int getDamage(){
-        return damage;
-    }
     @Override
-    public boolean hasCollied() {
-        return false;
+    public double getHealth() {
+        return health;
     }
+
+    @Override
+    public void setHealth(double health) {
+
+    }
+
+
 
     public boolean isInvincible() {
         return isInvincible;

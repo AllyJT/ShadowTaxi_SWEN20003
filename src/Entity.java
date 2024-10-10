@@ -8,6 +8,7 @@ public class Entity {
     private double y;
     private double radius;
     private boolean visible = true;
+    private boolean inCollision;
     private int speed;
     private double health;
     private Properties GAME_PROPS;
@@ -31,6 +32,11 @@ public class Entity {
     /**
      * getters and setters
      */
+
+    public int getSpeed() {
+        return speed;
+    }
+
     public void setSpeed(int speed) {
         this.speed = speed;
     }
@@ -74,6 +80,12 @@ public class Entity {
         return visible;
     }
 
+    public void setInCollision(boolean inCollision) {
+        this.inCollision = inCollision;
+    }
+    public boolean isInCollision(){
+        return inCollision;
+    }
     /**
      * movement
      */

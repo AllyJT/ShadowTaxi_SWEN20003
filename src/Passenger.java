@@ -1,14 +1,14 @@
 import bagel.Font;
 import bagel.Image;
 
-public class Passenger extends Entity implements TakeDamage, Damageable{
+public class Passenger extends Entity implements Damageable {
     private int priority;
     private boolean pickedUp;
     private boolean droppedOff;
     private double expectedValue;
     private boolean isExpectedValue = false;
     private boolean hasUmbrella;
-    private int health;
+    private double health;
     private int collisionTimeOut;
     private double IN_CAR_RADIUS;
     private double radius;
@@ -17,7 +17,7 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
     //private final Image BLOOD;
 
     public Passenger(String string, double x, double y, double radius,
-                     int priority,TripEndFlag tripEndFlag) {
+                     int priority, TripEndFlag tripEndFlag) {
         super(string, x, y, radius);
         this.tripEndFlag = tripEndFlag;
         this.priority = priority;
@@ -27,8 +27,7 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
     }
 
 
-
-   /* Getters and setters */
+    /* Getters and setters */
     public void setHasUmbrella(boolean hasUmbrella) {
         this.hasUmbrella = hasUmbrella;
     }
@@ -49,9 +48,11 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
     public int getPriority() {
         return priority;
     }
+
     public void setPriority(int priority) {
         this.priority = priority;
     }
+
     public void setTripEndFlag(TripEndFlag tripEndFlag) {
         this.tripEndFlag = tripEndFlag;
         this.setVisible(true);
@@ -77,6 +78,7 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
     public boolean isDroppedOff() {
         return this.droppedOff;
     }
+
     /**
      * methods
      */
@@ -86,9 +88,11 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
     public boolean isPickedUp() {
         return pickedUp;
     }
+
     /**
      * Set the stage of passenger, along with the visibility of flag
      * Flag only visible when we have a passenger on it
+     *
      * @param pickedUp
      */
     public void setPickedUp(boolean pickedUp) {
@@ -123,8 +127,9 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
 
     /**
      * Check the priority of the passenger and get the rate
+     *
      * @param passengerPriority passenger priority
-     * @param priorityRate the rate for priority 1 to 3
+     * @param priorityRate      the rate for priority 1 to 3
      * @return return the priority rate
      */
     public double checkPriority(int passengerPriority, double[] priorityRate) {
@@ -137,20 +142,23 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
 
     /**
      * render Priority next to passenger
-     * @param font font of text
-     * @param rate rate of the priority
+     *
+     * @param font     font of text
+     * @param rate     rate of the priority
      * @param ratePerY rate per pixel distance of the passenger and
      */
 
-    public void renderPriority (Font font, double rate, double ratePerY){
+    public void renderPriority(Font font, double rate, double ratePerY) {
         //render priority
         font.drawString(String.valueOf(this.getPriority()), this.getX() - 30, this.getY());
         String formattedExpectedValue = String.format("%.1f", this.expectedValue(rate, ratePerY));
-        font.drawString(formattedExpectedValue, this.getX()- 100, this.getY());
+        font.drawString(formattedExpectedValue, this.getX() - 100, this.getY());
     }
+
     /**
      * flag the expected value, so it won't change when the passenger move
-     * @param rate rate of priority
+     *
+     * @param rate     rate of priority
      * @param ratePerY rate per y-distance 0.1
      * @return return value of expected value
      */
@@ -159,17 +167,13 @@ public class Passenger extends Entity implements TakeDamage, Damageable{
     }
 
     @Override
-    public void takeDamage(Damageable Damage) {
-
+    public double getHealth() {
+        return health;
     }
 
     @Override
-    public boolean hasCollied() {
-        return false;
+    public void setHealth(double health) {
+
     }
 
-    @Override
-    public int getDamage() {
-        return 0;
-    }
 }
