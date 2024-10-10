@@ -286,7 +286,7 @@ public class GameScreen {
                 if (taxi.getY() < currentCollidedCar.getY() && countDown > 0) {
                     taxi.moveUp(); // Taxi moves up
                     currentCollidedCar.moveDown(); // Other car moves down
-                } else if(taxi.getY() >= currentCollidedCar.getY() && countDown > 0) {
+                } else if (taxi.getY() >= currentCollidedCar.getY() && countDown > 0) {
                     taxi.moveDown(); // Taxi moves down
                     currentCollidedCar.moveUp(); // Other car moves up
                 }
@@ -305,10 +305,38 @@ public class GameScreen {
                 currentCollidedCar = null; // Clear the reference
             }
         }
+        for (int i = 0; i < otherCarList.size(); i++) {
+            for (int j = i + 1; j < otherCarList.size(); j++) {
+                OtherCar carA = otherCarList.get(i);
+                OtherCar carB = otherCarList.get(j);
+                if (carA.getVisible() && carB.getVisible() && Utilities.checkCollision(carA, carB)) {
+                    // Handle collision between carA and carB
+                    carA.attack(carB); // Apply damage to carB
+                    carB.attack(carA); // Apply damage to carA
 
-        // Check health after collision handling
-        if (currentCollidedCar != null && currentCollidedCar.getHealth() <= 0) {
-            currentCollidedCar.setVisible(false); // Hide the car if health is zero
+                    // Move cars apart based on their positions
+                    if (carA.getY() < carB.getY()) {
+                        carA.moveUp();
+                        carB.moveDown();
+                    } else {
+                        carA.moveDown();
+                        carB.moveUp();
+                    }
+
+                    // Check health after collision
+                    if (carA.getHealth() <= 0) {
+                        carA.setVisible(false);
+                    }
+                    if (carB.getHealth() <= 0) {
+                        carB.setVisible(false);
+                    }
+                }
+            }
+
+            // Check health after collision handling
+            if (currentCollidedCar != null && currentCollidedCar.getHealth() <= 0) {
+                currentCollidedCar.setVisible(false); // Hide the car if health is zero
+            }
         }
     }
 
