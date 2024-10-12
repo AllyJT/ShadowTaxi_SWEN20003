@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class EnemyCar extends Car implements Movable{
+public class EnemyCar extends Car {
     private final Image ENEMY_CAR;
     private final String FIREBALL;
     private final double FIREBALL_RADIUS;
@@ -23,13 +23,18 @@ public class EnemyCar extends Car implements Movable{
         this.FIRE_BALL_DAMAGE = Double.parseDouble(gameProps.getProperty("gameObjects.fireball.damage"));
         this.fireballList = new ArrayList<>();
 
+        this.setSpeed(MiscUtils.getRandomInt(Integer.parseInt(gameProps.getProperty("gameObjects.enemyCar.minSpeedY")),
+                Integer.parseInt(gameProps.getProperty("gameObjects.enemyCar.maxSpeedY"))));
+        //enemyCar.setDamage(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.enemyCar.health")) * 100);
+        this.setHealth(Double.parseDouble(gameProps.getProperty("gameObjects.enemyCar.damage")) * 100);
+
         laneXposition = new int[3];
         laneXposition[0] = Integer.parseInt(gameProps.getProperty("roadLaneCenter1"));
         laneXposition[1] = Integer.parseInt(gameProps.getProperty("roadLaneCenter2"));
         laneXposition[2] = Integer.parseInt(gameProps.getProperty("roadLaneCenter3"));
         this.setX(selectLaneX());
         this.setY(selectLaneY());
-        this.setDamage(Double.parseDouble(gameProps.getProperty("gameObjects.enemyCar.damage")));
+        this.setDamage(Double.parseDouble(gameProps.getProperty("gameObjects.enemyCar.damage"))*100);
     }
     private double selectLaneY() {
         int[] laneYposition = {-50, 768};
@@ -37,7 +42,7 @@ public class EnemyCar extends Car implements Movable{
     }
 
     private double selectLaneX() {
-        return laneXposition[MiscUtils.selectAValue(0, laneXposition.length-1)];
+        return laneXposition[MiscUtils.getRandomInt(0, laneXposition.length-1)];
     }
 
     public void shootFire(){
@@ -45,7 +50,7 @@ public class EnemyCar extends Car implements Movable{
             Fireball fireball = new Fireball(FIREBALL,this.getX(),this.getY(),
                     FIREBALL_RADIUS);
             fireball.setSpeed(FIREBALL_SPEED);
-            fireball.setDamge(FIRE_BALL_DAMAGE);
+            fireball.setDamage(FIRE_BALL_DAMAGE);
             fireballList.add(fireball);
         }
     }
@@ -63,7 +68,12 @@ public class EnemyCar extends Car implements Movable{
     }
 
     @Override
-    public void setDamge(double damage) {
+    public double getDamage() {
+        return damage;
+    }
+
+    @Override
+    public void setDamage(double damage) {
         this.damage = damage;
     }
 }

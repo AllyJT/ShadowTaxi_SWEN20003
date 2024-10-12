@@ -3,9 +3,13 @@ import java.util.Properties;
 public abstract class Car extends Entity implements Attacker {
     private double damage;
     private double health;
+    private boolean isRebounding; // New property
+    private int reboundCountdown;
 
     public Car(Properties gameProps) {
         super(gameProps);
+        this.isRebounding = false; // Initialize to not rebounding
+        this.reboundCountdown = 0; // Initialize countdown
     }
 
     public void setHealth(double health) {
@@ -16,42 +20,21 @@ public abstract class Car extends Entity implements Attacker {
         return health;
     }
 
-    public double getDamage() {
-        return damage;
-    }
-    public void setDamage(double damage) {
-        this.damage = damage;
-    }
     @Override
     public void attack(Damageable target) {
-        double targetHealth = target.getHealth();
-        target.setHealth(targetHealth - this.damage);
+        if(target != null) {
+            target.setHealth(target.getHealth() - this.getDamage());
+        }
     }
 
-//    private boolean isCollising = false;
-//    private boolean isActive;
-//    private int counDown;
-//    public void collisingWithCar(Entity dm1){
-//        if(!isCollising){
-//            if(Utilities.checkCollision(dm1, this)){
-//                this.isActive = true;
-//                this.counDown = 10;
-//                this.isCollising = true;
-//                Damageable dm2 = (Damageable) dm1;
-//                if(dm2.getHealth())
-//
-//            }
+//    @Override
+//    public void setVisible(boolean visible) {
+//        super.setVisible(visible);
+//        if(!visible){
+//            health = 0;
 //        }
 //    }
-//
-//    public void countingDown(){
-//        if(isActive){
-//            counDown--;
-//            if(counDown < 0){
-//                isActive = false;
-//                isCollising = false;
-//            }
-//        }
-//    }
+
+
 }
 

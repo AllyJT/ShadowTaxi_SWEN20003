@@ -1,17 +1,16 @@
 import bagel.Font;
-import bagel.Image;
 
 public class Passenger extends Entity implements Damageable {
     private int priority;
     private boolean pickedUp;
     private boolean droppedOff;
     private double expectedValue;
-    private boolean isExpectedValue = false;
+    private boolean isExpectedValueCalculated = false;
     private boolean hasUmbrella;
+    private int originalPriority;
     private double health;
-    private int collisionTimeOut;
+    private boolean priorityAdjust;
     private double IN_CAR_RADIUS;
-    private double radius;
     private double DETECT_RADIUS;
     private TripEndFlag tripEndFlag;
     //private final Image BLOOD;
@@ -19,10 +18,12 @@ public class Passenger extends Entity implements Damageable {
     public Passenger(String string, double x, double y, double radius,
                      int priority, TripEndFlag tripEndFlag) {
         super(string, x, y, radius);
+        this.originalPriority = priority;
         this.tripEndFlag = tripEndFlag;
         this.priority = priority;
         this.pickedUp = false;
         this.droppedOff = false;
+        this.priorityAdjust= false;
 
     }
 
@@ -30,6 +31,10 @@ public class Passenger extends Entity implements Damageable {
     /* Getters and setters */
     public void setHasUmbrella(boolean hasUmbrella) {
         this.hasUmbrella = hasUmbrella;
+    }
+
+    public boolean isHasUmbrella() {
+        return hasUmbrella;
     }
 
     public void setDETECT_RADIUS(double DETECT_RADIUS) {
@@ -83,6 +88,9 @@ public class Passenger extends Entity implements Damageable {
      * methods
      */
 
+    public void resetPriority(){
+        this.priority = originalPriority;
+    }
 
     /* Pickup and Dropped off */
     public boolean isPickedUp() {
@@ -155,18 +163,40 @@ public class Passenger extends Entity implements Damageable {
         font.drawString(formattedExpectedValue, this.getX() - 100, this.getY());
     }
 
+    public boolean priorityAdjust(){
+        return priorityAdjust;
+    }
+
+    public void setPriorityAdjust(boolean priorityAdjust) {
+        this.priorityAdjust = priorityAdjust;
+    }
+
+    /**
+     * calculate the expected value
+     * @param rate rate of priority
+     * @param ratePerY rate per y-distance 0.1
+     * @return return value of expected value
+     */
+    public double calculateExpectedValue(double rate, double ratePerY) {
+        return Utilities.priorityCalculate(ratePerY, this.getPriority(), rate,
+                this.getTripEndFlag().getY(), this.getY());
+    }
+
     /**
      * flag the expected value, so it won't change when the passenger move
-     *
-     * @param rate     rate of priority
+     * @param rate rate of priority
      * @param ratePerY rate per y-distance 0.1
      * @return return value of expected value
      */
     public double expectedValue(double rate, double ratePerY) {
+        if (!isExpectedValueCalculated) {
+            this.expectedValue = calculateExpectedValue(rate, ratePerY);
+            isExpectedValueCalculated = true;
+        }
         return this.expectedValue;
     }
 
-    @Override
+        @Override
     public double getHealth() {
         return health;
     }
@@ -176,4 +206,11 @@ public class Passenger extends Entity implements Damageable {
 
     }
 
+
+    public void render(Font font, double ratePerY, double rate) {
+        super.render();
+        if(!isPickedUp()) {
+            renderPriority(font, rate, ratePerY);
+        }
+    }
 }

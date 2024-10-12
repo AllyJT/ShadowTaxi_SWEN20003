@@ -3,18 +3,16 @@ import bagel.Image;
 
 import java.util.Properties;
 
-public class Taxi extends Car implements CoinActivate, Invincible, Movable, Damageable{
+public class Taxi extends Car implements CoinActivate, Invincible, Damageable, Movable{
     private final Image TAXI;
-    private final Image DAMAGE_TAXI;
     private Passenger passenger = null;
-    private Coin coin;
+    private boolean hasDriver;
     private boolean isStop;
     private boolean isDropped;
     private boolean isInvincible;
-
+    private double moveDownSpeed;
     //private final double RADIUS;
     private boolean stop;
-    private int speed;
     private double damage;
     private double health;
     private Font healthValueFont;
@@ -26,24 +24,37 @@ public class Taxi extends Car implements CoinActivate, Invincible, Movable, Dama
     private int healthValueX;
     private int healthValueY;
 
+
+    /**
+     * constructor of the taxi
+     * @param gameProps game property file
+     * @param messProps message property file
+     */
     public Taxi(Properties gameProps, Properties messProps) {
         super(gameProps);
         this.TAXI = new Image(gameProps.getProperty("gameObjects.taxi.image"));
-        this.DAMAGE_TAXI = new Image(gameProps.getProperty("gameObjects.taxi.damagedImage"));
         /* TAXI HEALTH */
-        this.setHealth(Double.parseDouble(gameProps.getProperty("gameObjects.taxi.health")));
+        this.setHealth(Double.parseDouble(gameProps.getProperty("gameObjects.taxi.health"))*100);
         this.TAXI_TEXT = messProps.getProperty("gamePlay.taxiHealth");
-        //this.setDamge(Double.parseDouble(gameProps.getProperty("gameObjects.taxi.damage")));
+        this.setDamage(Double.parseDouble(gameProps.getProperty("gameObjects.taxi.damage")) * 100);
+        this.setSpeed(Integer.parseInt(gameProps.getProperty("gameObjects.taxi.speedX")));
+        this.setRadius(Double.parseDouble(gameProps.getProperty("gameObjects.taxi.radius")));
+        moveDownSpeed = Double.parseDouble(gameProps.getProperty("gameObjects.taxi.speedY")) ;
+        this.setHealthValueX(Integer.parseInt(gameProps.getProperty("gamePlay.taxiHealth.x")));
+        this.setHealthValueY(Integer.parseInt(gameProps.getProperty("gamePlay.taxiHealth.y")));
 
         /* TAXI DAMAGE */
 
         this.stop = true;
         setInvincible(false);
         setVisible(true);
+        setHasDriver(true);
     }
 
 
     /*SETTERS AND GETTER */
+
+
     public int getHealthValueX() {
         return healthValueX;
     }
@@ -82,24 +93,66 @@ public class Taxi extends Car implements CoinActivate, Invincible, Movable, Dama
 
     public boolean isStopped(){ return stop;}
 
+    //check if the taxi have passenger in it
+    public boolean hasPassenger(){
+        return passenger != null ;
+    }
+    public boolean isHasDriver() {
+        return hasDriver;
+    }
+
+    public void setHasDriver(boolean hasDriver) {
+        this.hasDriver = hasDriver;
+    }
+
+    public boolean isDropped() {
+        return isDropped;
+    }
+
+    @Override
+    public void moveDown() {
+        setY(getY() + moveDownSpeed);
+    }
+
+    @Override
+    public void setInvincible(boolean b) {
+        this.isInvincible = b;
+    }
+
+
+    @Override
+    public double getDamage() {
+        return damage;
+    }
+
+    @Override
+    public void setDamage(double damage) {
+        this.damage = damage;
+    }
 
     /* render */
 
     public void render(){
-        if(getVisible()){
-            if(this.getHealth() >  0){
-                TAXI.draw(this.getX(),this.getY());
-            }
-            else{
-                DAMAGE_TAXI.draw(this.getX(),this.getY());
-            }
+        if(getVisible() ){
+            TAXI.draw(this.getX(),this.getY());
+        }
+    }
+    public void ejectPassenger(){
+        if(hasPassenger()) {
+            this.getPassenger().setX(this.getX() - 100);
+            this.getPassenger().setY(this.getY());
+            this.passenger.setDroppedOff(true);
+            this.passenger = null;
         }
     }
 
+
+
     public void renderHealth(){
-        healthValueFont.drawString(TAXI_TEXT + this.getHealth()*100,
+        healthValueFont.drawString(TAXI_TEXT + this.getHealth(),
                 this.getHealthValueX(),this.getHealthValueY());
     }
+
     /* PICK AND DROP OFF PASSENGER */
     /**
      * Pick up the passenger when the condition are met
@@ -152,26 +205,8 @@ public class Taxi extends Car implements CoinActivate, Invincible, Movable, Dama
             }
         }
     }
-    //check if the taxi have passenger in it
-    public boolean hasPassenger(){
-        return passenger != null ;
-    }
 
 
-    public boolean isDropped() {
-        return isDropped;
-    }
-
-    @Override
-    public void setInvincible(boolean b) {
-        this.isInvincible = b;
-    }
-
-
-    @Override
-    public void setDamge(double damage) {
-        this.damage = damage;
-    }
 }
 
 

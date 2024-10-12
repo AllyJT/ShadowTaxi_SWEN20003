@@ -2,6 +2,7 @@ import bagel.Font;
 
 public class Coin extends Entity{
     private boolean isCollied = false;
+    private Passenger passenger;
     private int duration;
     private int coinPower = 0;
     private boolean powerIsActive;
@@ -19,6 +20,7 @@ public class Coin extends Entity{
                 this.setVisible(false);
                 this.powerIsActive = true;
                 this.coinPower = 0;
+
                 setCollied(true);
 
             }

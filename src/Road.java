@@ -46,6 +46,10 @@ public class Road extends Entity {
         return "SUNNY";
     }
 
+    public String getCurrentWeather() {
+        return currentWeather;
+    }
+
     public void render(){
         Image BG;
         if(currentWeather.equals("SUNNY")){

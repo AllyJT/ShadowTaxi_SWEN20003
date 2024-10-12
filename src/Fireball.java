@@ -34,8 +34,8 @@ public class Fireball extends Entity implements Damageable, Attacker{
     }
 
     @Override
-    public void setDamge(double damage) {
-
+    public void setDamage(double damage) {
+        this.damage = damage;
     }
     @Override
     public void attack(Damageable target) {

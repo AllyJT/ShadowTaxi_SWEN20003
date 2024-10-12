@@ -2,7 +2,7 @@ import bagel.*;
 
 import java.util.Properties;
 
-public class Entity {
+abstract class Entity {
     private Image image;
     private double x;
     private double y;
@@ -13,16 +13,32 @@ public class Entity {
     private double health;
     private Properties GAME_PROPS;
 
+    /**
+     * constructor of the entity class
+     * @param gameProps is the game property file provided
+     */
     public Entity(Properties gameProps) {
         this.GAME_PROPS = gameProps;
     }
 
-
+    /**
+     * constructor
+     * @param string name of the file
+     * @param x coord x
+     * @param y coord y
+     * @param radius radius of the entity
+     */
     public Entity(String string, double x, double y, double radius) {
         this.image = new Image(string);
         this.x = x;
         this.y = y;
     }
+
+    /**
+     * constructor
+     * @param x coord x
+     * @param y coord y
+     */
     public Entity(double x, double y){
         this.x = x;
         this.y = y;
@@ -87,7 +103,7 @@ public class Entity {
         return inCollision;
     }
     /**
-     * movement
+     * movement  of the entity
      */
     public void moveDown(){
         y+= speed;
@@ -103,7 +119,7 @@ public class Entity {
     }
 
     /**
-     * rendering the object
+     * rendering the object when visible
      */
     public void render(){
         if(visible){
