@@ -5,21 +5,45 @@ import java.util.Properties;
 public abstract class Car extends Entity implements Attacker, Damageable {
     private double damage;
     private double health;
+    private final Image FIRE;
     private int fireTimer;
+    private final Image SMOKE;
+    private int smokeRenderTime;
+    private final int smokeTime = 10;
+    private boolean isCollied;
     private Properties GAME_PROPS;
 
     public Car(Properties gameProps) {
         super(gameProps);
         this.GAME_PROPS = gameProps;// Initialize countdown
         this.setMoving(false);
+
+        this.FIRE = new Image(gameProps.getProperty("gameObjects.fire.image"));
+        this.fireTimer = Integer.parseInt(gameProps.getProperty("gameObjects.fire.ttl"));
+        this.SMOKE = new Image(gameProps.getProperty("gameObjects.smoke.image"));
+        this.smokeRenderTime = smokeTime;
+    }
+
+    public void fireTimer(){
+        if(fireTimer > 0){fireTimer--;}
+    }
+    public void renderFire(){
+        if(fireTimer > 0){
+            FIRE.draw(this.getX(), this.getY());
+        }
     }
 
     public int getFireTimer() {
         return fireTimer;
     }
 
-    public void setFireTimer(int fireTimer) {
-        this.fireTimer = fireTimer;
+    public void smokeTimer(){
+        if(smokeRenderTime > 0){smokeRenderTime--;}
+    }
+    public void renderSmoke(){
+        if(this.isMoving()){
+            SMOKE.draw(this.getX(), this.getY());
+        }
     }
 
     public void setHealth(double health) {

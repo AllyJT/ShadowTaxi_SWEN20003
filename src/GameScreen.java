@@ -38,6 +38,7 @@ public class GameScreen {
     private String[] passengerStrings;
     private final String[] gameplayStrings;
     private List<Car> carList = new ArrayList<>();
+    private List<Entity> entitiesList = new ArrayList<>();
 
     private int powerX;
     private int powerY;
@@ -95,7 +96,6 @@ public class GameScreen {
     List<Passenger> passengerList = new ArrayList<>();
     List<TripEndFlag> tripEndFlagList = new ArrayList<>();
     List<InviciblePower> inviciblePowerList = new ArrayList<>();
-    List<Entity> smokeList = new ArrayList<>();
 
     /**
      * loop through the array to make an array of passenger, coin and invincible
@@ -108,11 +108,13 @@ public class GameScreen {
                     taxi.setX(Double.parseDouble(row[1]));
                     taxi.setY(Double.parseDouble(row[2]));
                     taxi.setHealthValueFont(font);
+                    entitiesList.add(taxi);
                     break;
                 case "DRIVER":
                     driver = new Driver(GAME_PROPS);
                     driver.setX( Double.parseDouble(row[1]));
                     driver.setY(Double.parseDouble(row[2]));
+                    entitiesList.add(driver);
                     break;
 
                 case "PASSENGER":
@@ -136,7 +138,7 @@ public class GameScreen {
                     tripEndFlag.setSpeed(speed);
                     passengerList.add(passenger);
                     tripEndFlagList.add(tripEndFlag);
-
+                    entitiesList.add(passenger);
                     break;
                 case "COIN":
                     coin = new Coin(GAME_PROPS.getProperty("gameObjects.coin.image"),
@@ -173,15 +175,17 @@ public class GameScreen {
             road.setWeather(weather);
             moveObject(input);
         }
-
         road.render();
         renderCoin();
+        driverEjection();
         drivingCar(input);
         getInTaxi();
         taxi.renderHealth();
         font.drawString(""+taxi.getHealth(),taxi.getX() + 50, taxi.getY() + 50);
         font.drawString(""+taxi.getDamage(),taxi.getX() + 50, taxi.getY());
-        if(taxi.getVisible()){taxi.render();}
+        if(taxi.getVisible()){
+            taxi.render();
+            taxi.renderSmoke();}
         driver.render();
 
         font.drawString(gameplayStrings[1] + String.valueOf(currentFrame),
@@ -264,26 +268,39 @@ public class GameScreen {
             if (taxi.hasPassenger()) {
                 Passenger passenger = taxi.getPassenger();
                 passenger.setVisible(true);
+                if(!taxi.isHasDriver() && passenger.isInCollision()){
+                    passenger.setX(taxi.getX() - 100);
+                    passenger.render();
+                }
                 passenger.followDriver(driver, passengerSpeedX, passengerSpeedY);
                 passenger.render();
             }
 
         }
     }
+    private void driverEjection(){
+        if(!taxi.isHasDriver() && driver.isInCollision()){
+            if(taxi.hasPassenger()) {
+                taxi.getPassenger().setInCollision(true);
+            }
+            driver.setInCollision(true);
+            driver.setX(taxi.getX() - 50);
+        }
+    }
 
     private void getInTaxi(){
         if(Utilities.checkCollision(driver,taxi)){
+            driver.setInCollision(false);
             driver.setVisible(false);
             taxi.setAccident(false);
             if(taxi.hasPassenger()) {
+                taxi.getPassenger().setInCollision(false);
                 taxi.getPassenger().setVisible(false);
             }
             taxi.setHasDriver(true);
         }
 
     }
-
-
 
     /**
      * move the object when we are driving the car upward
@@ -319,19 +336,23 @@ public class GameScreen {
      * render the random spawn car such as other cars and enemy cars
      */
     public void renderCar() {
-        if (MiscUtils.canSpawn(100)) {
+        if (MiscUtils.canSpawn(400)) {
             enemyCar = new EnemyCar(GAME_PROPS);
             enemyCarList.add(enemyCar);
             carList.add(enemyCar);
+            entitiesList.add(enemyCar);
         }
         if (!enemyCarList.isEmpty()) {
             for (EnemyCar enemyCar : enemyCarList) {
                 if(enemyCar.getVisible() ) {
                     font.drawString(""+enemyCar.getHealth(),enemyCar.getX() + 50, enemyCar.getY() + 50);
                     font.drawString(""+enemyCar.getDamage(),enemyCar.getX() + 50, enemyCar.getY());
-                    enemyCar.shootFire();
                     enemyCar.moveUp();
                     enemyCar.render();
+                    enemyCar.renderSmoke();
+                    renderFlame(enemyCar);
+                    enemyCar.shootFire();
+                    enemyCar.renderFireball(entitiesList);
                 }
             }
         }
@@ -339,10 +360,11 @@ public class GameScreen {
         collisionHandler.renderDamageTaxiList();
     }
     public void renderOtherCar(){
-        if (MiscUtils.canSpawn(100)) {
+        if (MiscUtils.canSpawn(200)) {
             otherCar = new OtherCar(GAME_PROPS);
             otherCarList.add(otherCar);
             carList.add(otherCar);
+            entitiesList.add(otherCar);
         }
         if (!otherCarList.isEmpty()) {
             for (OtherCar otherCar : otherCarList) {
@@ -351,22 +373,19 @@ public class GameScreen {
                     font.drawString(""+otherCar.getDamage(),otherCar.getX() + 50, otherCar.getY());
                     otherCar.moveUp();
                     otherCar.render();
+                    otherCar.renderSmoke();
+                    renderFlame(otherCar);
                 }
             }
         }
     }
 
-    /**
-     * check if the entity is moving by checking if the player is pressing any key or not
-     * @param input the key input: left, right, up, down
-     * @return boolean
-     */
-    public boolean isMoving(Input input) {
-        return (input.wasPressed(Keys.LEFT) || input.isDown(Keys.LEFT))
-                || (input.wasPressed(Keys.RIGHT) || input.isDown(Keys.RIGHT))
-                || (input.wasPressed(Keys.UP) || input.isDown(Keys.UP));
+    public void renderFlame(Car car){
+        if(car.getHealth() <= 0) {
+            car.fireTimer();
+            car.renderFire();
+        }
     }
-
 
 
 }

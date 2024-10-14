@@ -47,10 +47,10 @@ public class EnemyCar extends Car {
 
     public void shootFire(){
         if(MiscUtils.canSpawn(300)){
-            Fireball fireball = new Fireball(FIREBALL,this.getX(),this.getY(),
+            Fireball fireball = new Fireball(this,FIREBALL,this.getX(),this.getY(),
                     FIREBALL_RADIUS);
             fireball.setSpeed(FIREBALL_SPEED);
-            fireball.setDamage(FIRE_BALL_DAMAGE);
+            fireball.setDamage(FIRE_BALL_DAMAGE*100);
             fireballList.add(fireball);
         }
     }
@@ -62,17 +62,37 @@ public class EnemyCar extends Car {
     public List<Fireball> getFireballList() {
         return fireballList;
     }
-
     @Override
     public void render() {
-        if(ENEMY_CAR != null){
-            ENEMY_CAR.draw(getX(),getY());
-        }
-        for(Fireball fireball : fireballList){
-            fireball.moveUp();
-            fireball.render();
+        if (ENEMY_CAR != null) {
+            ENEMY_CAR.draw(getX(), getY());
         }
     }
+    public void renderFireball(List<Entity> entities){
+        List<Fireball> fireballsToRemove = new ArrayList<>();
+        for (Fireball fireball : fireballList) {
+            fireball.moveUp();
+            fireball.render();
+            fireballCollision(entities,fireball);
+            // Check if fireball should be removed
+            if (!fireball.getVisible()) {
+                fireballsToRemove.add(fireball);
+            }
+        }
+        fireballList.removeAll(fireballsToRemove);
+    }
 
+    public void fireballCollision(List<Entity> entities, Fireball fireball) {
+        for (Entity entity : entities) {
+            // Ensure the entity is not the fireball's owner and is visible
+            if (Utilities.checkCollision(entity, fireball) &&
+                    !entity.equals(fireball.getOwnEnemyCar()) &&
+                    entity.getVisible()) {
+                fireball.attack((Damageable) entity);
+                fireball.setVisible(false);
+                break; // Exit after the first collision
+            }
+        }
+    }
 
 }

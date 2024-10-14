@@ -1,13 +1,15 @@
 
 import bagel.Image;
-
-import java.util.Properties;
-
 public class Fireball extends Entity implements Damageable, Attacker{
     private double damage;
-    public Fireball(String string, double x, double y, double radius) {
+    private final Entity ownEnemyCar;
+    public Fireball(Entity enemyCar,String string, double x, double y, double radius) {
         super(string, x, y, radius);
+        this.ownEnemyCar = enemyCar;
+    }
 
+    public Entity getOwnEnemyCar() {
+        return ownEnemyCar;
     }
 
     @Override

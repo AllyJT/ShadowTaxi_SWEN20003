@@ -113,7 +113,7 @@ class Entity {
     }
 
     public void setMoving(boolean moving) {
-        isMoving = moving;
+        this.isMoving = moving;
     }
 
     public boolean isMoving() {

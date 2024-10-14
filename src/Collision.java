@@ -46,7 +46,6 @@ public class Collision {
                     moveAwayCountDown = movingTimeOut;
                     currentTaxi = taxi;
                     currentCollidedEntity = car;
-                    renderSFX(currentTaxi,currentCollidedEntity);
                     removingCurrentColliedEntity(car);
                     break; // Exit after the first collision
                 }
@@ -55,24 +54,30 @@ public class Collision {
         }
 
         handleCollision();
- }
+    }
+
     private boolean movingAway = false;
+
     private void handleCollision() {
-        if (isCollided && countDown > 0 ) {
-            if (currentCollidedEntity != null && currentTaxi!=null) {
+        if (isCollided && countDown > 0) {
+            if (currentCollidedEntity != null && currentTaxi != null) {
                 // Display the countdown or other logic as needed
-                if(movingAway == false) {
+                if (movingAway == false) {
                     currentCollidedEntity.attack(currentTaxi);
                     currentTaxi.attack(currentCollidedEntity);
                 }
-                if(moveAwayCountDown > 0 ) {
-                    renderSmokeList();
+                if (moveAwayCountDown > 0) {
+                    //renderSmokeList();
+                    currentTaxi.setMoving(true);
+                    currentCollidedEntity.setMoving(true);
                     movingAway = true;
                     moveAwayCountDown--;
-                    mover(currentTaxi,currentCollidedEntity);
+                    mover(currentTaxi, currentCollidedEntity);
 
                 }
-                if(moveAwayCountDown <= 0 ){
+                if (moveAwayCountDown <= 0) {
+                    currentTaxi.setMoving(false);
+                    currentCollidedEntity.setMoving(false);
                     movingAway = false;
                     currentCollidedEntity.setSpeed(setNewSpeed());
                 }
@@ -85,8 +90,8 @@ public class Collision {
             }
 
         }
-        if (currentCollidedEntity != null && currentCollidedEntity.getHealth() <= 0){
-            if(moveAwayCountDown <=0) {
+        if (currentCollidedEntity != null && currentCollidedEntity.getHealth() <= 0) {
+            if (moveAwayCountDown <= 0) {
                 currentCollidedEntity.setVisible(false);
                 currentCollidedEntity = null;
             }
@@ -95,12 +100,11 @@ public class Collision {
 
         resetTaxiPosition();
     }
-    private void removingCurrentColliedEntity(Car car){
-        if (car.getHealth() <= 0){
-            startFireAfterDelay(car);
+
+    private void removingCurrentColliedEntity(Car car) {
+        if (car.getHealth() <= 0) {
             car.setVisible(false);
             carList.remove(car);
-
         }
     }
 
@@ -115,42 +119,41 @@ public class Collision {
                     car2.setInCollision(true);
                     car1.setCollisionTimer(noDamageTimeOut);
                     car1.setMovingAwayTimer(moveAwayCountDown);
-                    renderSFX(car1,car2);
+                    renderSFX(car1, car2);
                     handleCarCollision(car1, car2);
                 }
             }
         }
     }
-    public void renderSFX(Car car1, Car car2){
+
+    public void renderSFX(Car car1, Car car2) {
         clearSmoke();
-        fireList.clear();
         accidentRenderSmoke(car1);
         accidentRenderSmoke(car2);
-        accidentRenderFire(car1);
-        accidentRenderFire(car2);
     }
-    public void handleCarCollision(Car car1, Car car2){
-        if(car1.isInCollision() && car2.isInCollision()){
-            if(!car1.isMoving() && !car2.isMoving()){
+
+    public void handleCarCollision(Car car1, Car car2) {
+        if (car1.isInCollision() && car2.isInCollision()) {
+            if (!car1.isMoving() && !car2.isMoving()) {
                 car1.attack(car2);
                 car2.attack(car1);
             }
-            if(car1.getCollisionTimer()>0){
+            if (car1.getCollisionTimer() > 0) {
                 renderSmokeList();
                 car1.setMoving(true);
                 car2.setMoving(true);
-                mover(car1,car2);
+                mover(car1, car2);
                 car1.setMovingAwayTimer(car1.getMovingAwayTimer() - 1);
-                }
-            if(car1.getMovingAwayTimer() <= 0 ) {
+            }
+            if (car1.getMovingAwayTimer() <= 0) {
                 car1.setMoving(false);
                 car2.setMoving(false);
                 car1.setSpeed(setNewSpeed());
                 car2.setSpeed(setNewSpeed());
             }
-            car1.setCollisionTimer(car1.getCollisionTimer()-1);
+            car1.setCollisionTimer(car1.getCollisionTimer() - 1);
         }
-        if(car1.getCollisionTimer()<=0){
+        if (car1.getCollisionTimer() <= 0) {
             car1.setInCollision(false);
             car2.setInCollision(false);
         }
@@ -158,18 +161,19 @@ public class Collision {
         removeCar(car2);
     }
 
-    private void removeCar(Car car){
-        if(car.getHealth()<=0) {
+    private void removeCar(Car car) {
+        if (car.getHealth() <= 0) {
+            car.fireTimer();
+            car.renderFire();
             if (!car.isMoving()) {
                 car.setVisible(false);
                 carList.remove(car);
             }
-            startFireAfterDelay(car);
-            updateFireEffects(car);
         }
     }
-    public void mover(Car car1, Car car2){
-        if(car1.getY() > car2.getY()){
+
+    public void mover(Car car1, Car car2) {
+        if (car1.getY() > car2.getY()) {
             car1.moveDown();
             car2.moveUp();
         } else {
@@ -177,6 +181,7 @@ public class Collision {
             car2.moveDown();
         }
     }
+
     public int setNewSpeed() {
         return MiscUtils.getRandomInt(Integer.parseInt(
                         GAME_PROPS.getProperty("gameObjects.enemyCar.minSpeedY")),
@@ -184,9 +189,9 @@ public class Collision {
     }
 
     private void resetTaxiPosition() {
-        if (currentTaxi != null && currentTaxi.getHealth() <= 0){
+        if (currentTaxi != null && currentTaxi.getHealth() <= 0) {
             currentTaxi.setVisible(false);
-            if(moveAwayCountDown == 0) {
+            if (moveAwayCountDown == 0) {
                 renderDamageTaxi();
                 taxi.setX(MiscUtils.selectAValue(360, 620));
                 taxi.setY(MiscUtils.selectAValue(200, 400));
@@ -198,7 +203,8 @@ public class Collision {
         }
 
     }
-    private void renderDamageTaxi(){
+
+    private void renderDamageTaxi() {
         damageTaxi1 = new DamageTaxi(GAME_PROPS);
         damageTaxi1.setX(currentTaxi.getX());
         damageTaxi1.setY(currentTaxi.getY());
@@ -207,14 +213,16 @@ public class Collision {
         currentTaxi = null;
 
     }
-    public void renderDamageTaxiList(){
-        if(!damageTaxiList.isEmpty()){
-            for(DamageTaxi damageTaxi: damageTaxiList){
+
+    public void renderDamageTaxiList() {
+        if (!damageTaxiList.isEmpty()) {
+            for (DamageTaxi damageTaxi : damageTaxiList) {
                 damageTaxi.fireTimer();
                 damageTaxi.render();
             }
         }
     }
+
     public void moveDamageTaxiList() {
         moveSmoke();
         if (!damageTaxiList.isEmpty()) {
@@ -223,61 +231,35 @@ public class Collision {
             }
         }
     }
+
     public void renderSmokeList() {
-        if(!smokeList.isEmpty()){
-            for(Entity smoke: smokeList){
+        if (!smokeList.isEmpty()) {
+            for (Entity smoke : smokeList) {
                 smoke.render();
             }
         }
 
     }
+
     public void moveSmoke() {
-        if(!smokeList.isEmpty()){
-            for(Entity smoke: smokeList){
+        if (!smokeList.isEmpty()) {
+            for (Entity smoke : smokeList) {
                 smoke.moveDown();
             }
         }
 
     }
+
     public void clearSmoke() {
         smokeList.clear();
     }
-    public void accidentRenderSmoke(Car car){
+
+    public void accidentRenderSmoke(Car car) {
         smoke = new Entity(GAME_PROPS.getProperty("gameObjects.smoke.image"));
         smoke.setX(car.getX());
         smoke.setY(car.getY());
         smoke.setSpeed(speed);
         smokeList.add(smoke);
     }
-    public void accidentRenderFire(Car car){
-        fire = new Entity(GAME_PROPS.getProperty("gameObjects.fire.image"));
-        fire.setX(car.getX());
-        fire.setY(car.getY());
-        fire.setSpeed(speed);
-        fireList.add(fire);
-    }
-
-    private void startFireAfterDelay(Car car) {
-        // Start a timer for the fire effect
-        int fireTimer = Integer.parseInt(GAME_PROPS.getProperty("gameObjects.fire.ttl"));
-        car.setFireTimer(fireTimer); // Set the fire timer for the car
-    }
-
-    public void updateFireEffects(Car car) {
-        if (car.getHealth() <=0 && car.getFireTimer() > 0) {
-            car.setFireTimer(car.getFireTimer() - 1); // Decrease fire timer
-            if (car.getFireTimer() <= 0) {
-                renderFireList(); // Render fire when the timer expires
-            }
-        }
-    }
-
-    public void renderFireList() {
-        for (Entity fire : fireList) {
-            fire.render();
-        }
-    }
-
-
 
 }

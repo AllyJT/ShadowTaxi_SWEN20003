@@ -20,7 +20,7 @@ public class Driver extends Entity implements Invincible,Damageable{
         this.setRadius(Double.parseDouble(gameProps.getProperty("gameObjects.driver.radius")));
         this.setSpeedX(Integer.parseInt(gameProps.getProperty("gameObjects.driver.walkSpeedX")));
         this.setSpeedY(Integer.parseInt(gameProps.getProperty("gameObjects.driver.walkSpeedX")));
-
+        this.setInCollision(false);
         setVisible(false);
     }
 
