@@ -13,6 +13,7 @@ public class Passenger extends Entity implements Damageable {
     private double IN_CAR_RADIUS;
     private double DETECT_RADIUS;
     private TripEndFlag tripEndFlag;
+    private boolean wasEjected;
     //private final Image BLOOD;
 
     public Passenger(String string, double x, double y, double radius,
@@ -24,11 +25,21 @@ public class Passenger extends Entity implements Damageable {
         this.pickedUp = false;
         this.droppedOff = false;
         this.priorityAdjust= false;
+        this.wasEjected = false;
 
     }
 
 
     /* Getters and setters */
+
+    public void setWasEjected(boolean wasEjected) {
+        this.wasEjected = wasEjected;
+    }
+
+    public boolean isWasEjected() {
+        return wasEjected;
+    }
+
     public void setHasUmbrella(boolean hasUmbrella) {
         this.hasUmbrella = hasUmbrella;
     }
@@ -123,7 +134,7 @@ public class Passenger extends Entity implements Damageable {
                 //move the passenger if they see flag
                 this.setX(this.getX() + Utilities.clamp(tripEndFlag.getX() - this.getX(), -speedX, speedX));
                 this.setY(this.getY() + Utilities.clamp(tripEndFlag.getY() - this.getY(), -speedY, speedY));
-                if (Utilities.getEuclideanDistance(tripEndFlag.getX(), tripEndFlag.getY(), this.getX(), this.getY()) <= 1) {
+                if (Utilities.checkCollision(tripEndFlag,this)) {
                     tripEndFlag.setVisible(false);
 
                 }
@@ -131,6 +142,12 @@ public class Passenger extends Entity implements Damageable {
             }
         }
 
+    }
+    public void followDriver(Driver driver,int speedX, int speedY){
+        if(getVisible()) {
+            this.setX(this.getX() + Utilities.clamp(driver.getX() - this.getX(), -speedX, speedX));
+            this.setY(this.getY() + Utilities.clamp(driver.getY() - this.getY(), -speedY, speedY));
+        }
     }
 
     /**

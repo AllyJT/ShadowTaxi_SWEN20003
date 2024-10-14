@@ -28,6 +28,7 @@ public class Fireball extends Entity implements Damageable, Attacker{
 
     }
 
+
     @Override
     public double getDamage() {
         return 0;

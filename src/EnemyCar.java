@@ -26,7 +26,7 @@ public class EnemyCar extends Car {
         this.setSpeed(MiscUtils.getRandomInt(Integer.parseInt(gameProps.getProperty("gameObjects.enemyCar.minSpeedY")),
                 Integer.parseInt(gameProps.getProperty("gameObjects.enemyCar.maxSpeedY"))));
         //enemyCar.setDamage(Double.parseDouble(GAME_PROPS.getProperty("gameObjects.enemyCar.health")) * 100);
-        this.setHealth(Double.parseDouble(gameProps.getProperty("gameObjects.enemyCar.damage")) * 100);
+        this.setHealth(Double.parseDouble(gameProps.getProperty("gameObjects.enemyCar.health")) * 100);
 
         laneXposition = new int[3];
         laneXposition[0] = Integer.parseInt(gameProps.getProperty("roadLaneCenter1"));
@@ -55,6 +55,13 @@ public class EnemyCar extends Car {
         }
     }
 
+    public void setFireballList(List<Fireball> fireballList) {
+        this.fireballList = fireballList;
+    }
+
+    public List<Fireball> getFireballList() {
+        return fireballList;
+    }
 
     @Override
     public void render() {
@@ -67,13 +74,5 @@ public class EnemyCar extends Car {
         }
     }
 
-    @Override
-    public double getDamage() {
-        return damage;
-    }
 
-    @Override
-    public void setDamage(double damage) {
-        this.damage = damage;
-    }
 }

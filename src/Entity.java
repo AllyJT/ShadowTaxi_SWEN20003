@@ -2,16 +2,20 @@ import bagel.*;
 
 import java.util.Properties;
 
-abstract class Entity {
+class Entity {
     private Image image;
     private double x;
     private double y;
     private double radius;
     private boolean visible = true;
     private boolean inCollision;
+    private boolean setCollisionTimer;
+    private int movingAwayTimer;
     private int speed;
     private double health;
     private Properties GAME_PROPS;
+    private int collisionTimer;
+    private boolean isMoving;
 
     /**
      * constructor of the entity class
@@ -34,24 +38,13 @@ abstract class Entity {
         this.y = y;
     }
 
-    /**
-     * constructor
-     * @param x coord x
-     * @param y coord y
-     */
-    public Entity(double x, double y){
-        this.x = x;
-        this.y = y;
+    public Entity(String string){
+        this.image = new Image(string);
     }
-
 
     /**
      * getters and setters
      */
-
-    public int getSpeed() {
-        return speed;
-    }
 
     public void setSpeed(int speed) {
         this.speed = speed;
@@ -102,6 +95,31 @@ abstract class Entity {
     public boolean isInCollision(){
         return inCollision;
     }
+
+    public int getCollisionTimer() {
+        return collisionTimer;
+    }
+
+    public void setCollisionTimer(int collisionTimer) {
+        this.collisionTimer = collisionTimer;
+    }
+
+    public void setMovingAwayTimer(int movingAwayTimer) {
+        this.movingAwayTimer = movingAwayTimer;
+    }
+
+    public int getMovingAwayTimer() {
+        return movingAwayTimer;
+    }
+
+    public void setMoving(boolean moving) {
+        isMoving = moving;
+    }
+
+    public boolean isMoving() {
+        return isMoving;
+    }
+
     /**
      * movement  of the entity
      */

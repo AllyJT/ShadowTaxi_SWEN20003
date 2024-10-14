@@ -7,6 +7,7 @@ import java.util.Properties;
 
 public class Driver extends Entity implements Invincible,Damageable{
     private Image driver;
+    private Passenger passenger = null;
     private boolean isInvincible;
     private int speedX;
     private int speedY;
@@ -19,9 +20,20 @@ public class Driver extends Entity implements Invincible,Damageable{
         this.setRadius(Double.parseDouble(gameProps.getProperty("gameObjects.driver.radius")));
         this.setSpeedX(Integer.parseInt(gameProps.getProperty("gameObjects.driver.walkSpeedX")));
         this.setSpeedY(Integer.parseInt(gameProps.getProperty("gameObjects.driver.walkSpeedX")));
+
         setVisible(false);
     }
 
+    public void setPassenger(Passenger passenger) {
+        this.passenger = passenger;
+    }
+
+    public Passenger getPassenger() {
+        return passenger;
+    }
+    public boolean hasPassenger(){
+        return passenger!=null;
+    }
 
     public void setSpeedX(int speedX) {
         this.speedX = speedX;
@@ -60,7 +72,6 @@ public class Driver extends Entity implements Invincible,Damageable{
     public void setHealth(double health) {
         this.health = health;
     }
-
     public boolean isInvincible() {
         return isInvincible;
     }

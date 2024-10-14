@@ -2,10 +2,11 @@ import bagel.Image;
 
 import java.util.Properties;
 
-public class OtherCar extends Car implements Damageable, Movable{
+public class OtherCar extends Car{
     private Image currentImage;
     private int laneXposition[];
     private double damage;
+    private int countDown;
 
     /**
      * constructor
@@ -62,13 +63,4 @@ public class OtherCar extends Car implements Damageable, Movable{
     }
 
 
-    @Override
-    public double getDamage() {
-        return damage;
-    }
-
-    @Override
-    public void setDamage(double damage) {
-        this.damage = damage;
-    }
 }

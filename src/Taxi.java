@@ -3,7 +3,7 @@ import bagel.Image;
 
 import java.util.Properties;
 
-public class Taxi extends Car implements CoinActivate, Invincible, Damageable, Movable{
+public class Taxi extends Car implements CoinActivate, Invincible{
     private final Image TAXI;
     private Passenger passenger = null;
     private boolean hasDriver;
@@ -13,8 +13,7 @@ public class Taxi extends Car implements CoinActivate, Invincible, Damageable, M
     private double moveDownSpeed;
     //private final double RADIUS;
     private boolean stop;
-    private double damage;
-    private double health;
+    private boolean accident;
     private Font healthValueFont;
 
    /* text */
@@ -54,6 +53,12 @@ public class Taxi extends Car implements CoinActivate, Invincible, Damageable, M
 
     /*SETTERS AND GETTER */
 
+    public void setAccident(boolean accident) {
+        this.accident = accident;
+    }
+    public boolean getAccident(){
+        return accident;
+    }
 
     public int getHealthValueX() {
         return healthValueX;
@@ -100,7 +105,6 @@ public class Taxi extends Car implements CoinActivate, Invincible, Damageable, M
     public boolean isHasDriver() {
         return hasDriver;
     }
-
     public void setHasDriver(boolean hasDriver) {
         this.hasDriver = hasDriver;
     }
@@ -120,16 +124,6 @@ public class Taxi extends Car implements CoinActivate, Invincible, Damageable, M
     }
 
 
-    @Override
-    public double getDamage() {
-        return damage;
-    }
-
-    @Override
-    public void setDamage(double damage) {
-        this.damage = damage;
-    }
-
     /* render */
 
     public void render(){
@@ -137,15 +131,6 @@ public class Taxi extends Car implements CoinActivate, Invincible, Damageable, M
             TAXI.draw(this.getX(),this.getY());
         }
     }
-    public void ejectPassenger(){
-        if(hasPassenger()) {
-            this.getPassenger().setX(this.getX() - 100);
-            this.getPassenger().setY(this.getY());
-            this.passenger.setDroppedOff(true);
-            this.passenger = null;
-        }
-    }
-
 
 
     public void renderHealth(){
@@ -190,7 +175,7 @@ public class Taxi extends Car implements CoinActivate, Invincible, Damageable, M
      * Drop off the passenger when the condition are met
      */
     public void dropOffPassenger(){
-        if( isStopped() && hasPassenger()) {
+        if( isStopped() && hasPassenger() && !getAccident()) {
             this.getPassenger().setX(this.getX());
             this.getPassenger().setY(this.getY());
             if ((Utilities.getEuclideanDistance(this.getX(), this.getY(), passenger.getTripEndFlag().getX(),
@@ -206,6 +191,14 @@ public class Taxi extends Car implements CoinActivate, Invincible, Damageable, M
         }
     }
 
+    public void ejectPassenger(Driver driver,int speedX, int speedY){
+        if(this.hasPassenger()){
+            this.passenger.setVisible(true);
+            this.passenger.setX(this.getX() - 100);
+            this.passenger.setY(this.getY());
+            this.passenger.followDriver(driver,speedX, speedY);
+        }
+    }
 
 }
 

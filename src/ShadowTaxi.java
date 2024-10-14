@@ -30,6 +30,8 @@ public class ShadowTaxi extends AbstractGame {
      */
     int flag = 0;
     int isPress(Input input) {
+
+
         if (input.wasPressed(Keys.ENTER)) {
             flag++;
         }
