@@ -38,6 +38,7 @@ public class PlayerInfoScreen {
                 userName += nameChar;
             }
         }
+        setUserName(userName);
     }
     public void render(Input input){
 
@@ -51,5 +52,13 @@ public class PlayerInfoScreen {
         INFO_FONT.drawString(userName,(Window.getWidth()- INFO_FONT.getWidth(userName))/2.0,
                 Double.parseDouble(GAME_PROPS.getProperty("home.title.y")), usernameDrawOption);
         nameMaker(input);
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

@@ -307,7 +307,6 @@ public class Collision {
 
             if (human.getMovingAwayTimer() <= 0) {
                 human.setMoving(false);
-                //human.setInCollision(false);
             }
 
             human.setCollisionTimer(human.getCollisionTimer() - 1);

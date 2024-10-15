@@ -20,6 +20,8 @@ public class Passenger extends Entity implements Damageable{
     private final int moveAwaySpeed = 2;
     private final Image BLOOD;
     private int bloodTimer;
+    private double startY;
+    private double endY;
 
     public Passenger(String string, double x, double y, double radius,
                      int priority, TripEndFlag tripEndFlag, Properties gameProps) {
@@ -113,6 +115,14 @@ public class Passenger extends Entity implements Damageable{
         setY(this.getY() - moveAwaySpeed);
         setX(this.getX() - moveAwaySpeed);
     }
+    public double getStartY(){
+        return startY;
+    }
+
+    public void setStartY(double startY) {
+        this.startY = startY;
+    }
+
 
     /**
      * methods
@@ -184,18 +194,20 @@ public class Passenger extends Entity implements Damageable{
         };
     }
 
+
     /**
      * render Priority next to passenger
      *
      * @param font     font of text
-     * @param rate     rate of the priority
+     * @param priorityRate   rate of the priority
      * @param ratePerY rate per pixel distance of the passenger and
      */
 
-    public void renderPriority(Font font, double rate, double ratePerY) {
+    public void renderPriority(Font font,double[] priorityRate, double ratePerY) {
         //render priority
+        double rate = checkPriority(priority,priorityRate);
         font.drawString(String.valueOf(this.getPriority()), this.getX() - 30, this.getY());
-        String formattedExpectedValue = String.format("%.1f", this.expectedValue(rate, ratePerY));
+        String formattedExpectedValue = String.format("%.1f", this.expectedValue(rate,ratePerY));
         font.drawString(formattedExpectedValue, this.getX() - 100, this.getY());
     }
 
@@ -207,6 +219,12 @@ public class Passenger extends Entity implements Damageable{
         this.priorityAdjust = priorityAdjust;
     }
 
+
+    public double getExpectedValue() {
+        return expectedValue;
+    }
+
+
     /**
      * calculate the expected value
      * @param rate rate of priority
@@ -215,7 +233,7 @@ public class Passenger extends Entity implements Damageable{
      */
     public double calculateExpectedValue(double rate, double ratePerY) {
         return Utilities.priorityCalculate(ratePerY, this.getPriority(), rate,
-                this.getTripEndFlag().getY(), this.getY());
+                this.getStartY());
     }
 
     /**
@@ -225,7 +243,7 @@ public class Passenger extends Entity implements Damageable{
      * @return return value of expected value
      */
     public double expectedValue(double rate, double ratePerY) {
-        if (!isExpectedValueCalculated) {
+        if(!isPickedUp()) {
             this.expectedValue = calculateExpectedValue(rate, ratePerY);
             isExpectedValueCalculated = true;
         }
@@ -252,11 +270,13 @@ public class Passenger extends Entity implements Damageable{
     }
 
 
-    public void render(Font font, double ratePerY, double rate) {
+    public void render(Font font, double ratePerY, double[] priorityRate) {
         super.render();
         if(!isPickedUp()) {
-            renderPriority(font, rate, ratePerY);
+            renderPriority(font, priorityRate, ratePerY);
         }
     }
+
+
 
 }

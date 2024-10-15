@@ -7,6 +7,8 @@ public class OtherCar extends Car{
     private int laneXposition[];
     private double damage;
     private int countDown;
+    private int yCoord1;
+    private int yCoord2;
 
     /**
      * constructor
@@ -22,6 +24,8 @@ public class OtherCar extends Car{
         laneXposition[0] = Integer.parseInt(gameProps.getProperty("roadLaneCenter1"));
         laneXposition[1] = Integer.parseInt(gameProps.getProperty("roadLaneCenter2"));
         laneXposition[2] = Integer.parseInt(gameProps.getProperty("roadLaneCenter3"));
+        this.yCoord1 = -50;
+        this.yCoord2 = 768;
         this.setX(selectLaneX());
         this.setY(selectLaneY());
         this.setSpeed(MiscUtils.getRandomInt(2, 5));
@@ -34,7 +38,7 @@ public class OtherCar extends Car{
      * @return X coord
      */
     private double selectLaneY() {
-        int[] laneYposition = {-50, 768};
+        int[] laneYposition = {yCoord1, yCoord2};
         return laneYposition[MiscUtils.selectAValue(0, 1)];
     }
 

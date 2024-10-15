@@ -13,6 +13,7 @@ public class ShadowTaxi extends AbstractGame {
     private HomeScreen homeScreen;
     private PlayerInfoScreen playerInfoScreen;
     private GameScreen gamePlayScreen;
+    private GameEndScreen gameEndScreen;
 
     public ShadowTaxi(Properties gameProps, Properties messageProps) {
         super(Integer.parseInt(gameProps.getProperty("window.width")),
@@ -23,7 +24,7 @@ public class ShadowTaxi extends AbstractGame {
         this.MESSAGE_PROPS = messageProps;
         homeScreen = new HomeScreen(GAME_PROPS, MESSAGE_PROPS);
         playerInfoScreen = new PlayerInfoScreen(GAME_PROPS, MESSAGE_PROPS);
-        gamePlayScreen = new GameScreen(GAME_PROPS,MESSAGE_PROPS);
+        gamePlayScreen = new GameScreen(GAME_PROPS,MESSAGE_PROPS,playerInfoScreen.getUserName());
     }
     /**
      * Making a flag to store which screen we are at
@@ -49,6 +50,7 @@ public class ShadowTaxi extends AbstractGame {
     @Override
     protected void update(Input input) {
         int currentFlag = isPress(input);
+        boolean startEndGame = false;
         if (input.wasPressed(Keys.ESCAPE)){
             Window.close();
         }
@@ -61,8 +63,19 @@ public class ShadowTaxi extends AbstractGame {
         else if (currentFlag == 1) {
             playerInfoScreen.render(input);
         }
-        else if ( currentFlag == 2){
-            gamePlayScreen.renderGameScreen(input);
+        else if ( currentFlag == 2 && gamePlayScreen != null){
+            if(gamePlayScreen.renderGameScreen(input)){
+                boolean isWon = gamePlayScreen.isLevelCompleted();
+
+                gameEndScreen = new GameEndScreen(GAME_PROPS, MESSAGE_PROPS);
+                gameEndScreen.setIsWon(isWon);
+                gamePlayScreen = null;
+            }
+        }else if (currentFlag == 2 && gamePlayScreen == null){
+            if(gameEndScreen.update(input)){
+                gameEndScreen = null;
+                gamePlayScreen= null;
+            }
         }
     }
 

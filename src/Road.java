@@ -14,13 +14,14 @@ public class Road extends Entity {
     private final String[][] WEATHER;
     private double BG_Y1 = Window.getHeight()/2.0;
     private double BG_Y2= -Window.getHeight()/2.0;
-
+    private String sunny;
 
     public Road(Properties gameProps,int speed) {
         super(gameProps);
         this.BG_SUNNY = new Image(gameProps.getProperty("backgroundImage.sunny"));
         this.BG_RAINING = new Image(gameProps.getProperty("backgroundImage.raining"));
         this.speed = speed;
+        this.sunny = "SUNNY";
         WEATHER = IOUtils.readCommaSeparatedFile("res/gameWeather.csv");
 
 
@@ -43,7 +44,7 @@ public class Road extends Entity {
                 return row[0];
             }
         }
-        return "SUNNY";
+        return sunny;
     }
 
     public String getCurrentWeather() {
@@ -52,7 +53,7 @@ public class Road extends Entity {
 
     public void render(){
         Image BG;
-        if(currentWeather.equals("SUNNY")){
+        if(currentWeather.equals(sunny)){
             BG = BG_SUNNY;
         }else{
             BG = BG_RAINING;

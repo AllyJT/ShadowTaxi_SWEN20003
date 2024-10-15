@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Properties;
 
 /**
@@ -39,6 +40,22 @@ public class IOUtils {
         }
 
         return null;
+    }
+
+    public static ArrayList<String[]> readCommaSeperatedFile2(String file) {
+        ArrayList<String[]> lines = new ArrayList<>();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String textRead;
+            while ((textRead = reader.readLine()) != null) {
+                String[] splitText = textRead.split(",");
+                lines.add(splitText);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            System.exit(-1);
+        }
+        return lines;
     }
 
     /***

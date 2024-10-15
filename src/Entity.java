@@ -51,6 +51,10 @@ class Entity {
         this.speed = speed;
     }
 
+    public int getSpeed() {
+        return speed;
+    }
+
     public void setImage(Image image) {
         this.image = image;
     }

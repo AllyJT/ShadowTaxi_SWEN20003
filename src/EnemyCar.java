@@ -12,6 +12,9 @@ public class EnemyCar extends Car {
     private List<Fireball> fireballList;
     private double damage;
     private int laneXposition[];
+    private int fireballRate;
+    private int yCoord1;
+    private int yCoord2;
 
     public EnemyCar(Properties gameProps) {
         super(gameProps);
@@ -22,6 +25,9 @@ public class EnemyCar extends Car {
         this.FIREBALL_SPEED = Integer.parseInt(gameProps.getProperty("gameObjects.fireball.shootSpeedY"));
         this.FIRE_BALL_DAMAGE = Double.parseDouble(gameProps.getProperty("gameObjects.fireball.damage"));
         this.fireballList = new ArrayList<>();
+        this.fireballRate = 300;
+        this.yCoord1 = -50;
+        this.yCoord2 = 768;
 
         this.setSpeed(MiscUtils.getRandomInt(Integer.parseInt(gameProps.getProperty("gameObjects.enemyCar.minSpeedY")),
                 Integer.parseInt(gameProps.getProperty("gameObjects.enemyCar.maxSpeedY"))));
@@ -37,7 +43,7 @@ public class EnemyCar extends Car {
         this.setDamage(Double.parseDouble(gameProps.getProperty("gameObjects.enemyCar.damage"))*100);
     }
     private double selectLaneY() {
-        int[] laneYposition = {-50, 768};
+        int[] laneYposition = {yCoord1, yCoord2};
         return laneYposition[MiscUtils.selectAValue(0, 1)];
     }
 
@@ -46,7 +52,7 @@ public class EnemyCar extends Car {
     }
 
     public void shootFire(){
-        if(MiscUtils.canSpawn(300)){
+        if(MiscUtils.canSpawn(fireballRate)){
             Fireball fireball = new Fireball(this,FIREBALL,this.getX(),this.getY(),
                     FIREBALL_RADIUS);
             fireball.setSpeed(FIREBALL_SPEED);

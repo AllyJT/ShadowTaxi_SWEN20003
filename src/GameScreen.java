@@ -17,6 +17,10 @@ public class GameScreen {
     private Coin newestCoin = null;
     private InviciblePower inviciblePower;
     private Collision collisionHandler;
+    private final double penaltyRate;
+
+    private final String PLAYER_NAME;
+    private boolean savedData;
 
     private Taxi taxi;
     private Driver driver;
@@ -24,10 +28,10 @@ public class GameScreen {
     private Font passengerFont;
 
     private int currentFrame;
-    private String duration;
+    private int MaxFrame;
+    private double target;
 
     private final double ratePerY;
-    private double rate;
     private double[] priority;
 
     private Properties GAME_PROPS;
@@ -36,24 +40,40 @@ public class GameScreen {
     private final double[] gameplayValues;
     private final String[][] GAME_OBJECT;
     private String[] passengerStrings;
+    private final double[] passengerValues;
     private final String[] gameplayStrings;
     private List<Car> carList = new ArrayList<>();
     private List<Entity> entitiesList = new ArrayList<>();
 
     private int powerX;
     private int powerY;
-    int passengerSpeedX ;
+    int passengerSpeedX;
     int passengerSpeedY;
+    private final int tripStatusX;
+    private final int tripStatusY;
+    private int ejectDriver;
+    private int ejectPassenger;
+    private int enemyRate;
+    private int otherCarRate;
+    private String rain;
 
-    public GameScreen(Properties gameProps, Properties messageProps) {
+    public GameScreen(Properties gameProps, Properties messageProps, String playerName) {
         this.speed = Integer.parseInt(gameProps.getProperty("gameObjects.taxi.speedY"));
         road = new Road(gameProps, speed);
         this.GAME_PROPS = gameProps;
         this.MESSAGE_PROPS = messageProps;
         this.currentFrame = Integer.parseInt(gameProps.getProperty("gamePlay.maxFrames"));
-        duration = gameProps.getProperty("gamePlay.target");
+        this.MaxFrame = Integer.parseInt(gameProps.getProperty("gamePlay.maxFrames"));
+        this.target = Double.parseDouble(gameProps.getProperty("gamePlay.target"));
         font = new Font(gameProps.getProperty("font"), Integer.parseInt(gameProps.getProperty("gamePlay.info.fontSize")));
         passengerFont = new Font(gameProps.getProperty("font"), Integer.parseInt(gameProps.getProperty("gameObjects.passenger.fontSize")));
+
+        this.PLAYER_NAME = playerName;
+        this.ejectDriver = 50;
+        this.ejectPassenger = 100;
+        this.enemyRate = 400;
+        this.otherCarRate = 200;
+        this.rain = "RAIN";
         /* coin frame */
 
         powerX = Integer.parseInt(gameProps.getProperty("gameplay.coin.x"));
@@ -66,6 +86,7 @@ public class GameScreen {
         gameplayValues[3] = Double.parseDouble(gameProps.getProperty("gamePlay.target.y"));
         gameplayValues[4] = Double.parseDouble(gameProps.getProperty("gamePlay.maxFrames.x"));
         gameplayValues[5] = Double.parseDouble(gameProps.getProperty("gamePlay.maxFrames.y"));
+        penaltyRate = Double.parseDouble(gameProps.getProperty("trip.penalty.perY"));
 
         //priority array;
         priority = new double[3];
@@ -78,10 +99,25 @@ public class GameScreen {
         passengerSpeedX = Integer.parseInt(GAME_PROPS.getProperty("gameObjects.passenger.walkSpeedX"));
         passengerSpeedY = Integer.parseInt(GAME_PROPS.getProperty("gameObjects.passenger.walkSpeedY"));
 
+        passengerValues = new double[6];
+        passengerValues[0] = Double.parseDouble(gameProps.getProperty("gamePlay.tripInfo.x"));
+        passengerValues[1] = Double.parseDouble(gameProps.getProperty("gamePlay.tripInfo.y"));
+
+        tripStatusX = Integer.parseInt(gameProps.getProperty("gamePlay.tripInfo.x"));
+        tripStatusY = Integer.parseInt(gameProps.getProperty("gamePlay.tripInfo.y"));
+
         gameplayStrings = new String[3];
         gameplayStrings[0] = messageProps.getProperty("gamePlay.earnings");
         gameplayStrings[1] = messageProps.getProperty("gamePlay.remFrames");
         gameplayStrings[2] = messageProps.getProperty("gamePlay.target");
+
+        passengerStrings = new String [5];
+        passengerStrings[0]  = messageProps.getProperty("gamePlay.onGoingTrip.title");
+        passengerStrings[1]  = messageProps.getProperty("gamePlay.completedTrip.title");
+        passengerStrings[2]  = messageProps.getProperty("gamePlay.trip.expectedEarning");
+        passengerStrings[3]  = messageProps.getProperty("gamePlay.trip.priority");
+        passengerStrings[4]  = messageProps.getProperty("gamePlay.trip.penalty");
+
         GAME_OBJECT = IOUtils.readCommaSeparatedFile("res/gameObjects.csv");
         gameLoops();
         collisionHandler = new Collision(taxi, carList,gameProps,messageProps);
@@ -122,6 +158,7 @@ public class GameScreen {
                             Double.parseDouble(row[1]), Double.parseDouble(row[2]),
                             Double.parseDouble(GAME_PROPS.getProperty("gameObjects.passenger.radius")),
                             Integer.parseInt(row[3]), tripEndFlag,GAME_PROPS);
+                    passenger.setStartY(Double.parseDouble(row[5]));
                     tripEndFlag = new TripEndFlag(GAME_PROPS.getProperty("gameObjects.tripEndFlag.image"),
                             Double.parseDouble(row[4]),
                             Double.parseDouble(row[2]) - Double.parseDouble(row[5]),
@@ -167,7 +204,7 @@ public class GameScreen {
      * running the game
      * @param input key
      */
-    public void renderGameScreen(Input input) {
+    public boolean renderGameScreen(Input input) {
         if (currentFrame >= 0) {
             currentFrame--;
             String weather = road.checkWeather(currentFrame);
@@ -180,32 +217,26 @@ public class GameScreen {
         drivingCar(input);
         getInTaxi();
         taxi.renderHealth();
-        font.drawString(""+taxi.getHealth(),taxi.getX() + 50, taxi.getY() + 50);
-        font.drawString(""+taxi.getDamage(),taxi.getX() + 50, taxi.getY());
+
         if(taxi.getVisible()){
             taxi.render();
             taxi.renderSmoke();}
         driver.render();
-        font.drawString(""+driver.getHealth(),driver.getX() + 50, driver.getY() + 50);
+        font.drawString(""+driver.getHealth(),500,600);
 
 
-        //renderBloodDriver(driver);
-
-        font.drawString(gameplayStrings[1] + String.valueOf(currentFrame),
+        font.drawString(gameplayStrings[1] + currentFrame,
                 gameplayValues[4], gameplayValues[5]);
-        font.drawString(gameplayStrings[2] + duration, gameplayValues[2],gameplayValues[3]);
+        font.drawString(gameplayStrings[2] + target, gameplayValues[2],gameplayValues[3]);
         for (TripEndFlag tripEndFlag : tripEndFlagList) {
-            //taxi.renderPay(font,gameplayStrings,gameplayValues);
-            taxi.dropOffPassenger();
+            taxi.renderPay(font,gameplayStrings,gameplayValues);
+            taxi.dropOffPassenger(font,passengerStrings,tripStatusX,tripStatusY);
         }
         for (InviciblePower inviciblePower : inviciblePowerList) {
             inviciblePower.colliedWithInvincible(taxi);
             inviciblePower.colliedWithInvincible(driver);
             inviciblePower.effecting(taxi);
             inviciblePower.effecting(driver);
-            inviciblePower.renderInvincible(font, 500, 500);
-
-
             inviciblePower.render();
         }
         renderCar();
@@ -215,7 +246,7 @@ public class GameScreen {
             collisionHandler.killHuman(driver);
             renderBloodDriver(driver);
         }
-
+        return isLevelCompleted() || isGameOver();
     }
 
     /**
@@ -235,15 +266,15 @@ public class GameScreen {
             newestCoin.renderCoinPowerFrame(font, powerX, powerY);
         }
 
+        //Passenger render
         for (Passenger passenger : passengerList) {
-            rate = passenger.checkPriority(passenger.getPriority(),priority);
             if(newestCoin != null && newestCoin.getPowerIsActive() ){
                 if(passenger.getPriority() > 1 && !passenger.priorityAdjust()){
                     passenger.setPriority(passenger.getPriority() - 1);
                     passenger.setPriorityAdjust(true);
                 }
             }
-            else if (road.getCurrentWeather().equals("RAIN") && !passenger.isHasUmbrella()) {
+            else if (road.getCurrentWeather().equals(rain) && !passenger.isHasUmbrella()) {
                 passenger.setPriority(1);
             }else{
                 passenger.setPriorityAdjust(false);
@@ -252,15 +283,18 @@ public class GameScreen {
             taxi.pickUpPassenger(passenger);
             if (passenger.isPickedUp() && passenger.hasTripEndFlag()) {
                 passenger.getTripEndFlag().render();
+                taxi.checkPenalty(passenger,penaltyRate);
+                taxi.updatePay(passenger);
+                taxi.renderLastTrip(font,passengerStrings,tripStatusX,tripStatusY);
             }
             if(!taxi.getAccident()) {
                 passenger.moveToFlag(passengerSpeedX, passengerSpeedY);
             }
             collisionHandler.killHuman(passenger);
             renderBloodPassenger(passenger);
-            font.drawString(""+passenger.getHealth(),passenger.getX() + 50, passenger.getY() + 50);
-            passenger.render(passengerFont,ratePerY,rate);
+            passenger.render(passengerFont,ratePerY,priority);
         }
+        taxi.renderTrip(font,passengerStrings,tripStatusX,tripStatusY);
     }
 
     /**
@@ -283,8 +317,9 @@ public class GameScreen {
                 Passenger passenger = taxi.getPassenger();
                 passenger.setVisible(true);
                 if(!taxi.isHasDriver() && passenger.isInCollision()){
-                    passenger.setX(taxi.getX() - 100);
+                    passenger.setX(taxi.getX() - ejectPassenger);
                     passenger.render();
+                    passenger.setInCollision(false);
                 }
                 passenger.followDriver(driver, passengerSpeedX, passengerSpeedY);
                 passenger.render();
@@ -298,7 +333,7 @@ public class GameScreen {
                 taxi.getPassenger().setInCollision(true);
             }
             driver.setInCollision(true);
-            driver.setX(taxi.getX() - 50);
+            driver.setX(taxi.getX() - ejectDriver);
         }
     }
 
@@ -350,7 +385,7 @@ public class GameScreen {
      * render the random spawn car such as other cars and enemy cars
      */
     public void renderCar() {
-        if (MiscUtils.canSpawn(400)) {
+        if (MiscUtils.canSpawn(enemyRate)) {
             enemyCar = new EnemyCar(GAME_PROPS);
             enemyCarList.add(enemyCar);
             carList.add(enemyCar);
@@ -359,8 +394,6 @@ public class GameScreen {
         if (!enemyCarList.isEmpty()) {
             for (EnemyCar enemyCar : enemyCarList) {
                 if(enemyCar.getVisible() ) {
-                    font.drawString(""+enemyCar.getHealth(),enemyCar.getX() + 50, enemyCar.getY() + 50);
-                    font.drawString(""+enemyCar.getDamage(),enemyCar.getX() + 50, enemyCar.getY());
                     enemyCar.moveUp();
                     enemyCar.render();
                     enemyCar.renderSmoke();
@@ -374,7 +407,7 @@ public class GameScreen {
         collisionHandler.renderDamageTaxiList();
     }
     public void renderOtherCar(){
-        if (MiscUtils.canSpawn(200)) {
+        if (MiscUtils.canSpawn(otherCarRate)) {
             otherCar = new OtherCar(GAME_PROPS);
             otherCarList.add(otherCar);
             carList.add(otherCar);
@@ -383,8 +416,6 @@ public class GameScreen {
         if (!otherCarList.isEmpty()) {
             for (OtherCar otherCar : otherCarList) {
                 if (otherCar.getVisible()) {
-                    font.drawString(""+otherCar.getHealth(),otherCar.getX() + 50, otherCar.getY() + 50);
-                    font.drawString(""+otherCar.getDamage(),otherCar.getX() + 50, otherCar.getY());
                     otherCar.moveUp();
                     otherCar.render();
                     otherCar.renderSmoke();
@@ -410,7 +441,52 @@ public class GameScreen {
         if(human.getHealth() <= 0) {
             human.bloodTimer();
             human.renderBlood();
+
         }
+    }
+
+    /**
+     * Check if the game is over. If the game is over and not saved the score, save the score.
+     * @return true if the game is over, false otherwise.
+     */
+    boolean isGameOver;
+    public boolean isGameOver() {
+        // Game is over if the current frame is greater than the max frames
+        isGameOver = currentFrame <= 0;
+
+        if(currentFrame >= MaxFrame && !savedData) {
+            savedData = true;
+            IOUtils.writeScoreToFile(GAME_PROPS.getProperty("gameEnd.scoresFile"),
+                    PLAYER_NAME + "," + taxi.getPay());
+        }
+        else if(driver.getHealth() <= 0 && !savedData){
+            savedData = true;
+            IOUtils.writeScoreToFile(GAME_PROPS.getProperty("gameEnd.scoresFile"),
+                    PLAYER_NAME + "," + taxi.getPay());
+        }
+        for(Passenger passenger1 : passengerList){
+            isGameOver = passenger1.getHealth() <= 0;
+            if(passenger1.getHealth() <= 0 && !savedData){
+                savedData = true;
+                IOUtils.writeScoreToFile(GAME_PROPS.getProperty("gameEnd.scoresFile"),
+                        PLAYER_NAME + "," + taxi.getPay());
+            }
+        }
+        return isGameOver || driver.getHealth()<=0;
+    }
+    /**
+     * Check if the level is completed. If the level is completed and not saved the score, save the score.
+     * @return true if the level is completed, false otherwise.
+     */
+    public boolean isLevelCompleted() {
+        // Level is completed if the total earnings is greater than or equal to the target earnings
+        boolean isLevelCompleted = taxi.getPay() >= target;
+        if(isLevelCompleted && !savedData) {
+            savedData = true;
+            IOUtils.writeScoreToFile(GAME_PROPS.getProperty("gameEnd.scoresFile"),
+                    PLAYER_NAME + "," + taxi.getPay());
+        }
+        return isLevelCompleted;
     }
 
 
