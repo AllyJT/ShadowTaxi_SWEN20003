@@ -7,7 +7,6 @@ public class Collision {
     private DamageTaxi damageTaxi1;
     private List<Car> carList;
     private List<DamageTaxi> damageTaxiList = new ArrayList<>();
-    private List<Fireball> fireballList = new ArrayList<>();
     private int countDown = 0;
     private int moveAwayCountDown = 0;
     private boolean isCollided = false;
@@ -18,18 +17,19 @@ public class Collision {
     private Properties GAME_PROPS;
     private Properties MESSAGE_PROPS;
 
-    private Entity fire;
+    private Entity blood;
     private Entity smoke;
     private int speed;
     public List<Entity> smokeList = new ArrayList<>();
 
     private final int noDamageTimeOut = 200;
-    private final int movingTimeOut = 20;
+    private final int movingTimeOut = 10;
+    private final int renderBloodTimer = 20;
+    private int bloodTimer;
 
 
     public Collision(Taxi taxi, List<Car> carList, Properties gameProp,
                      Properties messageProp) {
-        this.fire = new Entity(gameProp.getProperty("gameObjects.fire.image"));
         this.GAME_PROPS = gameProp;
         this.MESSAGE_PROPS = messageProp;
         this.taxi = taxi;
@@ -62,8 +62,11 @@ public class Collision {
         if (isCollided && countDown > 0) {
             if (currentCollidedEntity != null && currentTaxi != null) {
                 // Display the countdown or other logic as needed
-                if (movingAway == false) {
-                    currentCollidedEntity.attack(currentTaxi);
+                if (!movingAway && currentTaxi.getHealth()>0
+                        && currentCollidedEntity.getHealth() > 0) {
+                    if(!currentTaxi.isInvincible()) {
+                        currentCollidedEntity.attack(currentTaxi);
+                    }
                     currentTaxi.attack(currentCollidedEntity);
                 }
                 if (moveAwayCountDown > 0) {
@@ -103,7 +106,7 @@ public class Collision {
 
     private void removingCurrentColliedEntity(Car car) {
         if (car.getHealth() <= 0) {
-            car.setVisible(false);
+            //car.setVisible(false);
             carList.remove(car);
         }
     }
@@ -134,7 +137,8 @@ public class Collision {
 
     public void handleCarCollision(Car car1, Car car2) {
         if (car1.isInCollision() && car2.isInCollision()) {
-            if (!car1.isMoving() && !car2.isMoving()) {
+            if (!car1.isMoving() && !car2.isMoving()
+            && car1.getHealth() > 0 && car2.getHealth() > 0) {
                 car1.attack(car2);
                 car2.attack(car1);
             }
@@ -174,11 +178,11 @@ public class Collision {
 
     public void mover(Car car1, Car car2) {
         if (car1.getY() > car2.getY()) {
-            car1.moveDown();
-            car2.moveUp();
+            car1.moveDownAway();
+            car2.moveUpAway();
         } else {
-            car1.moveUp();
-            car2.moveDown();
+            car1.moveUpAway();
+            car2.moveDownAway();
         }
     }
 
@@ -260,6 +264,58 @@ public class Collision {
         smoke.setY(car.getY());
         smoke.setSpeed(speed);
         smokeList.add(smoke);
+    }
+
+    public void killHuman(Entity human){
+        for(Car car: carList){
+            if(Utilities.checkCollision(car,human) && !isCollided){
+                //human.setCollisionTimer(noDamageTimeOut);
+                human.setMovingAwayTimer(movingTimeOut);
+                human.setMoving(false);
+                human.setInCollision(true);
+                colliedWithHuman(car,human);
+                break;
+            }
+
+        }
+    }
+    public void colliedWithHuman(Car car, Entity human) {
+        Damageable vulnerable = (Damageable) human;
+        // If the human is in collision
+        if (human.isInCollision()) {
+            // Apply damage if not moving
+            if (!human.isMoving() && ((Damageable) human).getHealth() > 0
+            && car.getHealth() > 0) {
+                if (human instanceof Invincible && !((Invincible) human).isInvincible()) {
+                    car.attack(vulnerable);
+                } else {
+                    car.attack(vulnerable);
+                }
+            }
+
+            // Handle moving away logic
+            if (human.getMovingAwayTimer() > 0) {
+                human.setMoving(true);
+                // Move away from the car
+                if (human.getY() > car.getY()) {
+                    vulnerable.moveUpAway();
+                } else {
+                    vulnerable.moveDownAway();
+                }
+                human.setMovingAwayTimer(human.getMovingAwayTimer() - 1);
+            }
+
+            if (human.getMovingAwayTimer() <= 0) {
+                human.setMoving(false);
+                //human.setInCollision(false);
+            }
+
+            human.setCollisionTimer(human.getCollisionTimer() - 1);
+        }
+
+        if (human.getCollisionTimer() < 0) {
+            human.setInCollision(false);
+        }
     }
 
 }

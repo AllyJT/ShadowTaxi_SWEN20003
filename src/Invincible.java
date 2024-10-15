@@ -4,4 +4,5 @@ public interface Invincible {
     double getRadius();
 
     void setInvincible(boolean b);
+    boolean isInvincible();
 }

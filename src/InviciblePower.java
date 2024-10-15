@@ -1,7 +1,6 @@
 import bagel.Font;
 
 public class InviciblePower extends Entity{
-    private int DURATION;
     private boolean isCollied = false;
     private int duration;
     private int invincibleTime = 0;
@@ -9,33 +8,33 @@ public class InviciblePower extends Entity{
     public InviciblePower(String string, double x, double y, double radius) {
         super(string, x, y, radius);
     }
-    public void setDURATION(int duration){
-        this.DURATION = duration;
+    public void setDuration(int duration){
+        this.duration = duration;
     }
     public void colliedWithInvincible(Invincible obj){
         if(!isCollied) {
-            //this.setVisible(false);
             if (Utilities.getEuclideanDistance(obj.getX(), obj.getY(), this.getX(), this.getY()) <
                     Utilities.getRadiusDisatance(obj.getRadius(), this.getRadius())) {
                 this.setVisible(false);
                 this.isInvincible = true;
                 this.invincibleTime = 0;
                 obj.setInvincible(true);
-                setCollied();
+                setCollied(true);
 
             }
         }
     }
     /* METHOD */
-    public void setCollied(){
-        this.isCollied = true;
+    public void setCollied(boolean collied){
+        this.isCollied = collied;
     }
 
 
-    public void effecting () {
+    public void effecting (Invincible obj) {
         if (isInvincible) {
             invincibleTime++;
             if (invincibleTime > duration) {
+                obj.setInvincible(false);
                 isInvincible = false;
                 isCollied = false;
             }
@@ -45,6 +44,10 @@ public class InviciblePower extends Entity{
         if (isInvincible) {
             font.drawString(String.valueOf(invincibleTime), x, y);
         }
+    }
+
+    public boolean isInvincible() {
+        return isInvincible;
     }
 }
 

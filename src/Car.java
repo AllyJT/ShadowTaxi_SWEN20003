@@ -10,6 +10,7 @@ public abstract class Car extends Entity implements Attacker, Damageable {
     private final Image SMOKE;
     private int smokeRenderTime;
     private final int smokeTime = 10;
+    private final int moveAwaySpeed = 1;
     private boolean isCollied;
     private Properties GAME_PROPS;
 
@@ -32,14 +33,6 @@ public abstract class Car extends Entity implements Attacker, Damageable {
             FIRE.draw(this.getX(), this.getY());
         }
     }
-
-    public int getFireTimer() {
-        return fireTimer;
-    }
-
-    public void smokeTimer(){
-        if(smokeRenderTime > 0){smokeRenderTime--;}
-    }
     public void renderSmoke(){
         if(this.isMoving()){
             SMOKE.draw(this.getX(), this.getY());
@@ -52,6 +45,14 @@ public abstract class Car extends Entity implements Attacker, Damageable {
 
     public double getHealth() {
         return health;
+    }
+    @Override
+    public void moveDownAway(){
+        setY(this.getY() + moveAwaySpeed);
+    }
+    @Override
+    public void moveUpAway(){
+        setY(this.getY() - moveAwaySpeed);
     }
 
 
