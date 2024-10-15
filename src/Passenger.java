@@ -1,6 +1,9 @@
 import bagel.Font;
+import bagel.Image;
 
-public class Passenger extends Entity implements Damageable {
+import java.util.Properties;
+
+public class Passenger extends Entity implements Damageable{
     private int priority;
     private boolean pickedUp;
     private boolean droppedOff;
@@ -14,10 +17,12 @@ public class Passenger extends Entity implements Damageable {
     private double DETECT_RADIUS;
     private TripEndFlag tripEndFlag;
     private boolean wasEjected;
-    //private final Image BLOOD;
+    private final int moveAwaySpeed = 2;
+    private final Image BLOOD;
+    private int bloodTimer;
 
     public Passenger(String string, double x, double y, double radius,
-                     int priority, TripEndFlag tripEndFlag) {
+                     int priority, TripEndFlag tripEndFlag, Properties gameProps) {
         super(string, x, y, radius);
         this.originalPriority = priority;
         this.tripEndFlag = tripEndFlag;
@@ -26,6 +31,9 @@ public class Passenger extends Entity implements Damageable {
         this.droppedOff = false;
         this.priorityAdjust= false;
         this.wasEjected = false;
+        this.BLOOD = new Image(gameProps.getProperty("gameObjects.blood.image"));
+        this.bloodTimer = Integer.parseInt(gameProps.getProperty("gameObjects.blood.ttl"));
+        this.setHealth(Double.parseDouble(gameProps.getProperty("gameObjects.passenger.health"))*100);
 
     }
 
@@ -39,6 +47,7 @@ public class Passenger extends Entity implements Damageable {
     public boolean isWasEjected() {
         return wasEjected;
     }
+
 
     public void setHasUmbrella(boolean hasUmbrella) {
         this.hasUmbrella = hasUmbrella;
@@ -93,6 +102,16 @@ public class Passenger extends Entity implements Damageable {
 
     public boolean isDroppedOff() {
         return this.droppedOff;
+    }
+    @Override
+    public void moveDownAway(){
+        setY(this.getY() + moveAwaySpeed);
+        setX(this.getX() + moveAwaySpeed);
+    }
+    @Override
+    public void moveUpAway(){
+        setY(this.getY() - moveAwaySpeed);
+        setX(this.getX() - moveAwaySpeed);
     }
 
     /**
@@ -220,7 +239,16 @@ public class Passenger extends Entity implements Damageable {
 
     @Override
     public void setHealth(double health) {
+        this.health = health;
+    }
+    public void bloodTimer(){
+        if(bloodTimer > 0){bloodTimer--;}
+    }
 
+    public void renderBlood() {
+        if(bloodTimer > 0){
+            BLOOD.draw(this.getX(), this.getY());
+        }
     }
 
 
@@ -230,4 +258,5 @@ public class Passenger extends Entity implements Damageable {
             renderPriority(font, rate, ratePerY);
         }
     }
+
 }

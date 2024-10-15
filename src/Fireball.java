@@ -30,6 +30,16 @@ public class Fireball extends Entity implements Damageable, Attacker{
 
     }
 
+    @Override
+    public void moveDownAway() {
+
+    }
+
+    @Override
+    public void moveUpAway() {
+
+    }
+
 
     @Override
     public double getDamage() {

@@ -5,21 +5,28 @@ import bagel.Keys;
 
 import java.util.Properties;
 
-public class Driver extends Entity implements Invincible,Damageable{
+public class Driver extends Entity implements Invincible, Damageable{
     private Image driver;
     private Passenger passenger = null;
     private boolean isInvincible;
+    private final int moveAwaySpeed = 2;
     private int speedX;
     private int speedY;
+    private final Image BLOOD;
+    private int bloodTimer;
 
     public double health;
 
     public Driver(Properties gameProps) {
         super(gameProps);
+        this.BLOOD = new Image(gameProps.getProperty("gameObjects.blood.image"));
+        this.bloodTimer = Integer.parseInt(gameProps.getProperty("gameObjects.blood.ttl"));
+
         this.driver =  new Image(gameProps.getProperty("gameObjects.driver.image"));
         this.setRadius(Double.parseDouble(gameProps.getProperty("gameObjects.driver.radius")));
         this.setSpeedX(Integer.parseInt(gameProps.getProperty("gameObjects.driver.walkSpeedX")));
         this.setSpeedY(Integer.parseInt(gameProps.getProperty("gameObjects.driver.walkSpeedX")));
+        this.setHealth(Double.parseDouble(gameProps.getProperty("gameObjects.driver.health"))*100);
         this.setInCollision(false);
         setVisible(false);
     }
@@ -42,6 +49,16 @@ public class Driver extends Entity implements Invincible,Damageable{
     public void setSpeedY(int speedY) {
         this.speedY = speedY;
     }
+    public void bloodTimer(){
+        if(bloodTimer > 0){bloodTimer--;}
+    }
+
+    public void renderBlood() {
+        if(bloodTimer > 0){
+            BLOOD.draw(this.getX(), this.getY());
+        }
+    }
+
 
     @Override
     public void moveDown() {
@@ -72,6 +89,7 @@ public class Driver extends Entity implements Invincible,Damageable{
     public void setHealth(double health) {
         this.health = health;
     }
+    @Override
     public boolean isInvincible() {
         return isInvincible;
     }
@@ -79,6 +97,16 @@ public class Driver extends Entity implements Invincible,Damageable{
     @Override
     public void setInvincible(boolean isInvincible) {
         this.isInvincible = isInvincible;
+    }
+    @Override
+    public void moveDownAway(){
+        setY(this.getY() + moveAwaySpeed);
+        setX(this.getX() + moveAwaySpeed);
+    }
+    @Override
+    public void moveUpAway(){
+        setY(this.getY() - moveAwaySpeed);
+        setX(this.getX() - moveAwaySpeed);
     }
     public void move(Input input){
         if(input.wasPressed(Keys.LEFT) || input.isDown(Keys.LEFT)){
@@ -94,6 +122,7 @@ public class Driver extends Entity implements Invincible,Damageable{
             moveUp();
         }
     }
+
 
     @Override
     public void render() {

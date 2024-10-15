@@ -122,8 +122,10 @@ public class Taxi extends Car implements CoinActivate, Invincible{
     public void setInvincible(boolean b) {
         this.isInvincible = b;
     }
-
-
+    @Override
+    public boolean isInvincible() {
+        return isInvincible;
+    }
     /* render */
 
     public void render(){

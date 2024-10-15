@@ -88,7 +88,12 @@ public class EnemyCar extends Car {
             if (Utilities.checkCollision(entity, fireball) &&
                     !entity.equals(fireball.getOwnEnemyCar()) &&
                     entity.getVisible()) {
-                fireball.attack((Damageable) entity);
+                if(entity instanceof Invincible){
+                    Invincible inv = (Invincible) entity;
+                    if(!inv.isInvincible()){
+                        fireball.attack((Damageable) entity);
+                    }
+                }else{fireball.attack((Damageable) entity);}
                 fireball.setVisible(false);
                 break; // Exit after the first collision
             }

@@ -42,6 +42,7 @@ class Entity {
         this.image = new Image(string);
     }
 
+
     /**
      * getters and setters
      */
@@ -145,4 +146,5 @@ class Entity {
         }
 
     }
+
 }

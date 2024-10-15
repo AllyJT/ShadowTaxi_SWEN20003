@@ -121,7 +121,7 @@ public class GameScreen {
                     passenger = new Passenger(GAME_PROPS.getProperty("gameObjects.passenger.image"),
                             Double.parseDouble(row[1]), Double.parseDouble(row[2]),
                             Double.parseDouble(GAME_PROPS.getProperty("gameObjects.passenger.radius")),
-                            Integer.parseInt(row[3]), tripEndFlag);
+                            Integer.parseInt(row[3]), tripEndFlag,GAME_PROPS);
                     tripEndFlag = new TripEndFlag(GAME_PROPS.getProperty("gameObjects.tripEndFlag.image"),
                             Double.parseDouble(row[4]),
                             Double.parseDouble(row[2]) - Double.parseDouble(row[5]),
@@ -153,9 +153,8 @@ public class GameScreen {
                             Double.parseDouble(row[1]), Double.parseDouble(row[2]),
                             Double.parseDouble(GAME_PROPS.getProperty("gameObjects.invinciblePower.radius")));
                     inviciblePower.setSpeed(speed);
-                    inviciblePower.setRadius(Double.parseDouble(
-                            GAME_PROPS.getProperty("gameObjects.invinciblePower.radius")));
-                    inviciblePower.setDURATION(Integer.parseInt(
+//
+                    inviciblePower.setDuration(Integer.parseInt(
                             GAME_PROPS.getProperty("gameObjects.invinciblePower.maxFrames")));
                     inviciblePowerList.add(inviciblePower);
 
@@ -187,6 +186,10 @@ public class GameScreen {
             taxi.render();
             taxi.renderSmoke();}
         driver.render();
+        font.drawString(""+driver.getHealth(),driver.getX() + 50, driver.getY() + 50);
+
+
+        //renderBloodDriver(driver);
 
         font.drawString(gameplayStrings[1] + String.valueOf(currentFrame),
                 gameplayValues[4], gameplayValues[5]);
@@ -198,11 +201,20 @@ public class GameScreen {
         for (InviciblePower inviciblePower : inviciblePowerList) {
             inviciblePower.colliedWithInvincible(taxi);
             inviciblePower.colliedWithInvincible(driver);
+            inviciblePower.effecting(taxi);
+            inviciblePower.effecting(driver);
+            inviciblePower.renderInvincible(font, 500, 500);
+
+
             inviciblePower.render();
         }
         renderCar();
         collisionHandler.checkCollisions();
         collisionHandler.checkCarCollisions();
+        if(driver.getVisible()) {
+            collisionHandler.killHuman(driver);
+            renderBloodDriver(driver);
+        }
 
     }
 
@@ -212,7 +224,6 @@ public class GameScreen {
 
     public void renderCoin(){
         for (Coin coin : coinList) {
-            //coin.setVisible(false);
             coin.colliedWithCoin(taxi);
             coin.render();
             coin.updateCoinPower();
@@ -245,6 +256,9 @@ public class GameScreen {
             if(!taxi.getAccident()) {
                 passenger.moveToFlag(passengerSpeedX, passengerSpeedY);
             }
+            collisionHandler.killHuman(passenger);
+            renderBloodPassenger(passenger);
+            font.drawString(""+passenger.getHealth(),passenger.getX() + 50, passenger.getY() + 50);
             passenger.render(passengerFont,ratePerY,rate);
         }
     }
@@ -384,6 +398,18 @@ public class GameScreen {
         if(car.getHealth() <= 0) {
             car.fireTimer();
             car.renderFire();
+        }
+    }
+    public void renderBloodDriver(Driver human){
+        if(human.getHealth() <= 0) {
+            human.bloodTimer();
+            human.renderBlood();
+        }
+    }
+    public void renderBloodPassenger(Passenger human){
+        if(human.getHealth() <= 0) {
+            human.bloodTimer();
+            human.renderBlood();
         }
     }
 

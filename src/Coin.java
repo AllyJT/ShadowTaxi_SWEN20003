@@ -2,7 +2,6 @@ import bagel.Font;
 
 public class Coin extends Entity{
     private boolean isCollied = false;
-    private Passenger passenger;
     private int duration;
     private int coinPower = 0;
     private boolean powerIsActive;
@@ -14,7 +13,7 @@ public class Coin extends Entity{
 
     public void colliedWithCoin(CoinActivate obj){
         if(!isCollied) {
-            //this.setVisible(false);
+
             if (Utilities.getEuclideanDistance(obj.getX(), obj.getY(), this.getX(), this.getY()) <
                     Utilities.getRadiusDisatance(obj.getRadius(), this.getRadius())) {
                 this.setVisible(false);
