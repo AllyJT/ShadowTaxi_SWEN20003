@@ -67,7 +67,7 @@ public class GameScreen {
         this.target = Double.parseDouble(gameProps.getProperty("gamePlay.target"));
         font = new Font(gameProps.getProperty("font"), Integer.parseInt(gameProps.getProperty("gamePlay.info.fontSize")));
         passengerFont = new Font(gameProps.getProperty("font"), Integer.parseInt(gameProps.getProperty("gameObjects.passenger.fontSize")));
-
+        // number that wasn't provided in game property
         this.PLAYER_NAME = playerName;
         this.ejectDriver = 50;
         this.ejectPassenger = 100;
@@ -205,7 +205,7 @@ public class GameScreen {
      * @param input key
      */
     public boolean renderGameScreen(Input input) {
-        if (currentFrame >= 0) {
+        if (currentFrame > 0) {
             currentFrame--;
             String weather = road.checkWeather(currentFrame);
             road.setWeather(weather);
@@ -222,16 +222,12 @@ public class GameScreen {
             taxi.render();
             taxi.renderSmoke();}
         driver.render();
-        font.drawString(""+driver.getHealth(),500,600);
 
-
-        font.drawString(gameplayStrings[1] + currentFrame,
-                gameplayValues[4], gameplayValues[5]);
-        font.drawString(gameplayStrings[2] + target, gameplayValues[2],gameplayValues[3]);
         for (TripEndFlag tripEndFlag : tripEndFlagList) {
             taxi.renderPay(font,gameplayStrings,gameplayValues);
             taxi.dropOffPassenger(font,passengerStrings,tripStatusX,tripStatusY);
         }
+        // handle invincible power
         for (InviciblePower inviciblePower : inviciblePowerList) {
             inviciblePower.colliedWithInvincible(taxi);
             inviciblePower.colliedWithInvincible(driver);
@@ -240,6 +236,7 @@ public class GameScreen {
             inviciblePower.render();
         }
         renderCar();
+        // handle collision
         collisionHandler.checkCollisions();
         collisionHandler.checkCarCollisions();
         if(driver.getVisible()) {
@@ -250,12 +247,23 @@ public class GameScreen {
     }
 
     /**
+     * render current Frame and target score
+     */
+    private void renderFrame(){
+        font.drawString(gameplayStrings[1] + currentFrame,
+                gameplayValues[4], gameplayValues[5]);
+        font.drawString(gameplayStrings[2] + target, gameplayValues[2],gameplayValues[3]);
+    }
+
+    /**
      * render the coin when collect and update the priority when collect coin or in rain
      */
 
     public void renderCoin(){
+        //render coin and handle activation
         for (Coin coin : coinList) {
             coin.colliedWithCoin(taxi);
+            coin.colliedWithCoin(driver);
             coin.render();
             coin.updateCoinPower();
             if (coin.getPowerIsActive()) {
@@ -268,6 +276,7 @@ public class GameScreen {
 
         //Passenger render
         for (Passenger passenger : passengerList) {
+            // update priority if needed
             if(newestCoin != null && newestCoin.getPowerIsActive() ){
                 if(passenger.getPriority() > 1 && !passenger.priorityAdjust()){
                     passenger.setPriority(passenger.getPriority() - 1);
@@ -280,6 +289,7 @@ public class GameScreen {
                 passenger.setPriorityAdjust(false);
                 passenger.resetPriority();
             }
+            // pickup passenger
             taxi.pickUpPassenger(passenger);
             if (passenger.isPickedUp() && passenger.hasTripEndFlag()) {
                 passenger.getTripEndFlag().render();
@@ -287,9 +297,11 @@ public class GameScreen {
                 taxi.updatePay(passenger);
                 taxi.renderLastTrip(font,passengerStrings,tripStatusX,tripStatusY);
             }
+            // passenger move to flage
             if(!taxi.getAccident()) {
                 passenger.moveToFlag(passengerSpeedX, passengerSpeedY);
             }
+            // handle accident
             collisionHandler.killHuman(passenger);
             renderBloodPassenger(passenger);
             passenger.render(passengerFont,ratePerY,priority);
@@ -299,6 +311,7 @@ public class GameScreen {
 
     /**
      * Driving the taxi using the left or right arrow key
+     * if taxi is dead then we control driver
      */
     private void drivingCar(Input input) {
         if(taxi.getHealth() > 0 && taxi.isHasDriver()) {
@@ -319,6 +332,7 @@ public class GameScreen {
                 if(!taxi.isHasDriver() && passenger.isInCollision()){
                     passenger.setX(taxi.getX() - ejectPassenger);
                     passenger.render();
+                    passenger.setPickedUp(false);
                     passenger.setInCollision(false);
                 }
                 passenger.followDriver(driver, passengerSpeedX, passengerSpeedY);
@@ -327,6 +341,10 @@ public class GameScreen {
 
         }
     }
+
+    /**
+     * eject driver and set collision to true
+     */
     private void driverEjection(){
         if(!taxi.isHasDriver() && driver.isInCollision()){
             if(taxi.hasPassenger()) {
@@ -336,6 +354,11 @@ public class GameScreen {
             driver.setX(taxi.getX() - ejectDriver);
         }
     }
+
+    /**
+     * when the driver is in get in radius to taxi, driver get in taxi along with the passenger
+     * if have passenger
+     */
 
     private void getInTaxi(){
         if(Utilities.checkCollision(driver,taxi)){
@@ -382,7 +405,7 @@ public class GameScreen {
     List<OtherCar> otherCarList = new ArrayList<>();
     List<EnemyCar> enemyCarList = new ArrayList<>();
     /**
-     * render the random spawn car such as other cars and enemy cars
+     * render the random spawn car such as enemy cars, handle dead and fireballs
      */
     public void renderCar() {
         if (MiscUtils.canSpawn(enemyRate)) {
@@ -406,6 +429,10 @@ public class GameScreen {
         renderOtherCar();
         collisionHandler.renderDamageTaxiList();
     }
+
+    /**
+     * spawn and render other cars
+     */
     public void renderOtherCar(){
         if (MiscUtils.canSpawn(otherCarRate)) {
             otherCar = new OtherCar(GAME_PROPS);
@@ -425,18 +452,31 @@ public class GameScreen {
         }
     }
 
+    /**
+     * render fire when car is dead
+     * @param car car
+     */
     public void renderFlame(Car car){
         if(car.getHealth() <= 0) {
             car.fireTimer();
             car.renderFire();
         }
     }
+
+    /**
+     * render blood when driver is killed
+     * @param human driver
+     */
     public void renderBloodDriver(Driver human){
         if(human.getHealth() <= 0) {
             human.bloodTimer();
             human.renderBlood();
         }
     }
+    /**
+     * render blood when passenger is killed
+     * @param human driver
+     */
     public void renderBloodPassenger(Passenger human){
         if(human.getHealth() <= 0) {
             human.bloodTimer();
@@ -451,28 +491,33 @@ public class GameScreen {
      */
     boolean isGameOver;
     public boolean isGameOver() {
-        // Game is over if the current frame is greater than the max frames
-        isGameOver = currentFrame <= 0;
+        // Check if game is over based on frame or driver's health
+        isGameOver = currentFrame <= 0 || driver.getHealth() <= 0;
 
-        if(currentFrame >= MaxFrame && !savedData) {
-            savedData = true;
-            IOUtils.writeScoreToFile(GAME_PROPS.getProperty("gameEnd.scoresFile"),
-                    PLAYER_NAME + "," + taxi.getPay());
-        }
-        else if(driver.getHealth() <= 0 && !savedData){
-            savedData = true;
-            IOUtils.writeScoreToFile(GAME_PROPS.getProperty("gameEnd.scoresFile"),
-                    PLAYER_NAME + "," + taxi.getPay());
-        }
-        for(Passenger passenger1 : passengerList){
-            isGameOver = passenger1.getHealth() <= 0;
-            if(passenger1.getHealth() <= 0 && !savedData){
-                savedData = true;
-                IOUtils.writeScoreToFile(GAME_PROPS.getProperty("gameEnd.scoresFile"),
-                        PLAYER_NAME + "," + taxi.getPay());
+        // Check passenger health status
+        for (Passenger passenger1 : passengerList) {
+            if (passenger1.getHealth() <= 0) {
+                isGameOver = true; // If any passenger is down, game is over
+                break; // No need to check further passengers
             }
         }
-        return isGameOver || driver.getHealth()<=0;
+
+        // Save score if game is over and not saved yet
+        if (isGameOver && !savedData) {
+            savedData = true;
+            saveScore();
+        }
+
+        return isGameOver;
+    }
+
+    /**
+     * save the player name and their score in the wanted format
+     */
+
+    private void saveScore() {
+        String scoreLine = PLAYER_NAME + "," + taxi.getPay();
+        IOUtils.writeScoreToFile(GAME_PROPS.getProperty("gameEnd.scoresFile"), scoreLine);
     }
     /**
      * Check if the level is completed. If the level is completed and not saved the score, save the score.

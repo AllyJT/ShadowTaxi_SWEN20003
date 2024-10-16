@@ -24,7 +24,6 @@ public class ShadowTaxi extends AbstractGame {
         this.MESSAGE_PROPS = messageProps;
         homeScreen = new HomeScreen(GAME_PROPS, MESSAGE_PROPS);
         playerInfoScreen = new PlayerInfoScreen(GAME_PROPS, MESSAGE_PROPS);
-        gamePlayScreen = new GameScreen(GAME_PROPS,MESSAGE_PROPS,playerInfoScreen.getUserName());
     }
     /**
      * Making a flag to store which screen we are at
@@ -62,6 +61,7 @@ public class ShadowTaxi extends AbstractGame {
         }
         else if (currentFlag == 1) {
             playerInfoScreen.render(input);
+            gamePlayScreen = new GameScreen(GAME_PROPS,MESSAGE_PROPS,playerInfoScreen.getUserName());
         }
         else if ( currentFlag == 2 && gamePlayScreen != null){
             if(gamePlayScreen.renderGameScreen(input)){

@@ -11,6 +11,10 @@ public class Coin extends Entity{
         super(string, x, y, radius);
     }
 
+    /**
+     * check coin collisiom
+     * @param obj entity that can collect coin
+     */
     public void colliedWithCoin(CoinActivate obj){
         if(!isCollied) {
 
@@ -25,6 +29,7 @@ public class Coin extends Entity{
             }
         }
     }
+    /* SETTERS AMD GETTERS */
     public void setCollied(boolean collied){
         this.isCollied = collied;
     }

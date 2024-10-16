@@ -14,6 +14,9 @@ public class DamageTaxi extends Entity{
         this.fireTimer = Integer.parseInt(gameProps.getProperty("gameObjects.fire.ttl"));
     }
 
+    /**
+     * render Damage taxi
+     */
     @Override
     public void render() {
         DAMAGE_TAXI.draw(this.getX(),this.getY());
@@ -21,6 +24,10 @@ public class DamageTaxi extends Entity{
             FIRE.draw(this.getX(), this.getY());
         }
     }
+
+    /**
+     * timer for the fire that is on the damage taxi
+     */
     public void fireTimer(){
         if(fireTimer > 0){fireTimer--;}
     }

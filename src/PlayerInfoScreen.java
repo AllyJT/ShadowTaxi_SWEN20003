@@ -24,6 +24,11 @@ public class PlayerInfoScreen {
         START_WIDTH = INFO_FONT.getWidth(NAME_START);
 
     }
+
+    /**
+     * name makere
+     * @param input key
+     */
     private void nameMaker(Input input) {
 
         if (input.wasPressed(Keys.DELETE) || input.wasPressed(Keys.BACKSPACE)) {
@@ -38,8 +43,13 @@ public class PlayerInfoScreen {
                 userName += nameChar;
             }
         }
-        setUserName(userName);
+
     }
+
+    /**
+     * render player info screen
+     * @param input key
+     */
     public void render(Input input){
 
         BG.draw(Window.getWidth()/2.0,Window.getHeight()/2.0);
@@ -58,7 +68,4 @@ public class PlayerInfoScreen {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 }
