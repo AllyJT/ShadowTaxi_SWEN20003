@@ -222,7 +222,7 @@ public class GameScreen {
             taxi.render();
             taxi.renderSmoke();}
         driver.render();
-
+        renderFrame();
         for (TripEndFlag tripEndFlag : tripEndFlagList) {
             taxi.renderPay(font,gameplayStrings,gameplayValues);
             taxi.dropOffPassenger(font,passengerStrings,tripStatusX,tripStatusY);
