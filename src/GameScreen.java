@@ -227,6 +227,7 @@ public class GameScreen {
             taxi.renderPay(font,gameplayStrings,gameplayValues);
             taxi.dropOffPassenger(font,passengerStrings,tripStatusX,tripStatusY);
         }
+
         // handle invincible power
         for (InviciblePower inviciblePower : inviciblePowerList) {
             inviciblePower.colliedWithInvincible(taxi);
@@ -236,7 +237,6 @@ public class GameScreen {
             inviciblePower.render();
         }
         renderCar();
-        // handle collision
         collisionHandler.checkCollisions();
         collisionHandler.checkCarCollisions();
         if(driver.getVisible()) {
