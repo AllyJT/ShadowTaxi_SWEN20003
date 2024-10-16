@@ -37,6 +37,10 @@ public class Collision {
         this.carList = carList;
     }
 
+    /**
+     * check for collision between car and taxi, remover car if car is dead
+     */
+
     public void checkCollisions() {
         if (!isCollided) {
             for (Car car : carList) {
@@ -58,6 +62,9 @@ public class Collision {
 
     private boolean movingAway = false;
 
+    /**
+     * handle the collsion
+     */
     private void handleCollision() {
         if (isCollided && countDown > 0) {
             if (currentCollidedEntity != null && currentTaxi != null) {
@@ -104,13 +111,19 @@ public class Collision {
         resetTaxiPosition();
     }
 
+    /**
+     * removing car that is colliding with taxi
+     * @param car colliding car
+     */
     private void removingCurrentColliedEntity(Car car) {
         if (car.getHealth() <= 0) {
-            //car.setVisible(false);
             carList.remove(car);
         }
     }
 
+    /**
+     * check collision between car and car
+     */
     public void checkCarCollisions() {
         for (int i = 0; i < carList.size(); i++) {
             Car car1 = carList.get(i);
@@ -129,12 +142,19 @@ public class Collision {
         }
     }
 
+    /**
+     * render sfx
+     * @param car1 car1
+     * @param car2 car2
+     */
     public void renderSFX(Car car1, Car car2) {
         clearSmoke();
         accidentRenderSmoke(car1);
         accidentRenderSmoke(car2);
     }
-
+    /**
+     * handle collision between car and car
+     */
     public void handleCarCollision(Car car1, Car car2) {
         if (car1.isInCollision() && car2.isInCollision()) {
             if (!car1.isMoving() && !car2.isMoving()
@@ -164,7 +184,10 @@ public class Collision {
         removeCar(car1);
         removeCar(car2);
     }
-
+    /**
+     * removing  dead car
+     * @param car colliding car
+     */
     private void removeCar(Car car) {
         if (car.getHealth() <= 0) {
             car.fireTimer();
@@ -176,6 +199,11 @@ public class Collision {
         }
     }
 
+    /**
+     * move car awway
+     * @param car1 car1
+     * @param car2 car2
+     */
     public void mover(Car car1, Car car2) {
         if (car1.getY() > car2.getY()) {
             car1.moveDownAway();
@@ -186,12 +214,19 @@ public class Collision {
         }
     }
 
+    /**
+     * set new speed for car
+     * @return speed
+     */
     public int setNewSpeed() {
         return MiscUtils.getRandomInt(Integer.parseInt(
                         GAME_PROPS.getProperty("gameObjects.enemyCar.minSpeedY")),
                 Integer.parseInt(GAME_PROPS.getProperty("gameObjects.enemyCar.maxSpeedY")));
     }
 
+    /**
+     * new taxi position after old taxi is dead
+     */
     private void resetTaxiPosition() {
         if (currentTaxi != null && currentTaxi.getHealth() <= 0) {
             currentTaxi.setVisible(false);
@@ -208,6 +243,9 @@ public class Collision {
 
     }
 
+    /**
+     * create damage taxi
+     */
     private void renderDamageTaxi() {
         damageTaxi1 = new DamageTaxi(GAME_PROPS);
         damageTaxi1.setX(currentTaxi.getX());
@@ -217,6 +255,9 @@ public class Collision {
         currentTaxi = null;
 
     }
+    /**
+     * render damage taxi
+     */
 
     public void renderDamageTaxiList() {
         if (!damageTaxiList.isEmpty()) {
@@ -226,7 +267,9 @@ public class Collision {
             }
         }
     }
-
+    /**
+     * move damage taxi
+     */
     public void moveDamageTaxiList() {
         moveSmoke();
         if (!damageTaxiList.isEmpty()) {
@@ -235,7 +278,9 @@ public class Collision {
             }
         }
     }
-
+    /**
+     * render smoke
+     */
     public void renderSmokeList() {
         if (!smokeList.isEmpty()) {
             for (Entity smoke : smokeList) {
@@ -244,7 +289,9 @@ public class Collision {
         }
 
     }
-
+    /**
+     * move smoke
+     */
     public void moveSmoke() {
         if (!smokeList.isEmpty()) {
             for (Entity smoke : smokeList) {
@@ -254,10 +301,15 @@ public class Collision {
 
     }
 
+    /**
+     * clear smoke list
+     */
     public void clearSmoke() {
         smokeList.clear();
     }
-
+    /**
+     * create new smoke for accident
+     */
     public void accidentRenderSmoke(Car car) {
         smoke = new Entity(GAME_PROPS.getProperty("gameObjects.smoke.image"));
         smoke.setX(car.getX());
@@ -266,6 +318,10 @@ public class Collision {
         smokeList.add(smoke);
     }
 
+    /**
+     * check driver or passenger colliding with car
+     * @param human passenger or driver
+     */
     public void killHuman(Entity human){
         for(Car car: carList){
             if(Utilities.checkCollision(car,human) && !isCollided){
@@ -279,6 +335,12 @@ public class Collision {
 
         }
     }
+
+    /**
+     * handle collision
+     * @param car car
+     * @param human passenger or driver
+     */
     public void colliedWithHuman(Car car, Entity human) {
         Damageable vulnerable = (Damageable) human;
         // If the human is in collision

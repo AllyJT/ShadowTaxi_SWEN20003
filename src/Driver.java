@@ -67,7 +67,7 @@ public class Driver extends Entity implements Damageable, Invincible,CoinActivat
 
 
     /**
-     * render blood with timer
+     * when driver is dead, render blood for 20 frame
      */
     public void bloodTimer(){
         if(bloodTimer > 0){bloodTimer--;}
@@ -80,7 +80,7 @@ public class Driver extends Entity implements Damageable, Invincible,CoinActivat
     }
 
     /**
-     * moving the driver
+     * method for moving the driver
      */
     @Override
     public void moveDown() {
@@ -114,7 +114,7 @@ public class Driver extends Entity implements Damageable, Invincible,CoinActivat
     }
 
     /**
-     * control driver
+     * when key is press, and driver is visible, we can control the driver
      * @param input key
      */
     public void move(Input input){

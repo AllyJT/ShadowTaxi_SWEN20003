@@ -26,6 +26,10 @@ public class Road extends Entity {
 
 
     }
+
+    /**
+     * move Background, this will create rolling effect
+     */
     public void moveBG(){
         BG_Y1 += speed;
         BG_Y2 += speed;
@@ -35,9 +39,20 @@ public class Road extends Entity {
             BG_Y2 = BG_Y1  - Window.getHeight();
         }
     }
+
+    /**
+     *  check and set the weather : sunny or raining
+     * @param weather
+     */
     public void setWeather(String weather){
         this.currentWeather = weather;
     }
+
+    /**
+     * get the weather condition from file
+     * @param frame the time length of a weather condition
+     * @return the weather condition
+     */
     public String checkWeather(int frame){
         for(String[] row : WEATHER){
             if(frame >= Integer.parseInt(row[1]) && frame<= Integer.parseInt(row[2])){
@@ -51,6 +66,9 @@ public class Road extends Entity {
         return currentWeather;
     }
 
+    /**
+     * render the weather condition
+     */
     public void render(){
         Image BG;
         if(currentWeather.equals(sunny)){

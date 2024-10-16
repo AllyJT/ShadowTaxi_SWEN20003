@@ -40,7 +40,7 @@ public class Passenger extends Entity implements Damageable{
     }
 
 
-    /* Getters and setters */
+    /* GETTERS AND SETTERS */
 
     public void setWasEjected(boolean wasEjected) {
         this.wasEjected = wasEjected;
@@ -49,7 +49,6 @@ public class Passenger extends Entity implements Damageable{
     public boolean isWasEjected() {
         return wasEjected;
     }
-
 
     public void setHasUmbrella(boolean hasUmbrella) {
         this.hasUmbrella = hasUmbrella;
@@ -105,6 +104,10 @@ public class Passenger extends Entity implements Damageable{
     public boolean isDroppedOff() {
         return this.droppedOff;
     }
+
+    /**
+     * move away methos for when collied
+     */
     @Override
     public void moveDownAway(){
         setY(this.getY() + moveAwaySpeed);
@@ -115,18 +118,20 @@ public class Passenger extends Entity implements Damageable{
         setY(this.getY() - moveAwaySpeed);
         setX(this.getX() - moveAwaySpeed);
     }
+
+    /**
+     * get the distance between passenger and trip end flag
+     * @return
+     */
     public double getStartY(){
         return startY;
     }
-
     public void setStartY(double startY) {
         this.startY = startY;
     }
 
 
-    /**
-     * methods
-     */
+    /* reset priority if the condition for decrease priority is out   */
 
     public void resetPriority(){
         this.priority = originalPriority;
@@ -172,6 +177,13 @@ public class Passenger extends Entity implements Damageable{
         }
 
     }
+
+    /**
+     * when driver and passenger is ejected for the taxi, passenger follow driver
+     * @param driver taxi driver
+     * @param speedX speed to follow driver X
+     * @param speedY speed to follow driver y
+     */
     public void followDriver(Driver driver,int speedX, int speedY){
         if(getVisible()) {
             this.setX(this.getX() + Utilities.clamp(driver.getX() - this.getX(), -speedX, speedX));
@@ -259,6 +271,10 @@ public class Passenger extends Entity implements Damageable{
     public void setHealth(double health) {
         this.health = health;
     }
+
+    /**
+     * render blood for 20 frame after passenger is dead
+     */
     public void bloodTimer(){
         if(bloodTimer > 0){bloodTimer--;}
     }
@@ -269,7 +285,12 @@ public class Passenger extends Entity implements Damageable{
         }
     }
 
-
+    /**
+     * render passenger and priority
+     * @param font font of the text
+     * @param ratePerY rate per distance Y from flag
+     * @param priorityRate rate of pay for the expected pay
+     */
     public void render(Font font, double ratePerY, double[] priorityRate) {
         super.render();
         if(!isPickedUp()) {

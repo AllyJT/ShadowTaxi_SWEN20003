@@ -25,14 +25,25 @@ public abstract class Car extends Entity implements Attacker, Damageable {
         this.smokeRenderTime = smokeTime;
     }
 
+    /**
+     * check timer of the car when it is dead
+     */
     public void fireTimer(){
         if(fireTimer > 0){fireTimer--;}
     }
+
+    /**
+     * render car for a certain number of frame, 20 frame
+     */
     public void renderFire(){
         if(fireTimer > 0){
             FIRE.draw(this.getX(), this.getY());
         }
     }
+
+    /**
+     * render smoke for the collsion between car and car
+     */
     public void renderSmoke(){
         if(this.isMoving()){
             SMOKE.draw(this.getX(), this.getY());
@@ -46,6 +57,10 @@ public abstract class Car extends Entity implements Attacker, Damageable {
     public double getHealth() {
         return health;
     }
+
+    /**
+     * move away method
+     */
     @Override
     public void moveDownAway(){
         setY(this.getY() + moveAwaySpeed);
@@ -65,6 +80,11 @@ public abstract class Car extends Entity implements Attacker, Damageable {
     public void setDamage(double damage) {
         this.damage = damage;
     }
+
+    /**
+     * car attack damagable entity
+     * @param target the target
+     */
 
     @Override
     public void attack(Damageable target) {

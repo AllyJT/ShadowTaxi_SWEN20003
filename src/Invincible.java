@@ -1,3 +1,6 @@
+/**
+ * interface for invincible
+ */
 public interface Invincible {
     double getX();
     double getY();

@@ -58,6 +58,9 @@ public class Coin extends Entity{
 
     /* METHOD */
 
+    /**
+     * coin power count down
+     */
     public void updateCoinPower(){
         if(powerIsActive){
             coinPower++;
@@ -67,6 +70,13 @@ public class Coin extends Entity{
             }
         }
     }
+
+    /** render coin power count down
+     *
+     * @param font text font
+     * @param x x coord for text
+     * @param y y coord for text
+     */
     public void renderCoinPowerFrame(Font font, double x, double y){
         if(powerIsActive){
             font.drawString(String.valueOf(coinPower), x, y);

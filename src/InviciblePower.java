@@ -24,12 +24,22 @@ public class InviciblePower extends Entity{
             }
         }
     }
-    /* METHOD */
+    /* SETTERS AND GETTERS */
+
+
     public void setCollied(boolean collied){
         this.isCollied = collied;
     }
+    public boolean isInvincible() {
+        return isInvincible;
+    }
 
+    /* METHOD */
 
+    /**
+     * check if invicible is activate
+     * @param obj
+     */
     public void effecting (Invincible obj) {
         if (isInvincible) {
             invincibleTime++;
@@ -40,15 +50,7 @@ public class InviciblePower extends Entity{
             }
         }
     }
-    public void renderInvincible (Font font,double x, double y){
-        if (isInvincible) {
-            font.drawString(String.valueOf(invincibleTime), x, y);
-        }
-    }
 
-    public boolean isInvincible() {
-        return isInvincible;
-    }
 }
 
 

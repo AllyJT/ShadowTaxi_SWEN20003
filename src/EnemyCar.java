@@ -42,14 +42,29 @@ public class EnemyCar extends Car {
         this.setY(selectLaneY());
         this.setDamage(Double.parseDouble(gameProps.getProperty("gameObjects.enemyCar.damage"))*100);
     }
+    /* METHOD */
+
+    /**
+     * randomly select between two y coord for the enemy car
+     * @return y coord for enemy car
+     */
     private double selectLaneY() {
         int[] laneYposition = {yCoord1, yCoord2};
         return laneYposition[MiscUtils.selectAValue(0, 1)];
     }
 
+    /**
+     * randomly select between 3 lane for enemy car
+     * @return lane position for enemy car
+     */
+
     private double selectLaneX() {
         return laneXposition[MiscUtils.getRandomInt(0, laneXposition.length-1)];
     }
+
+    /**
+     * spawn fireball
+     */
 
     public void shootFire(){
         if(MiscUtils.canSpawn(fireballRate)){
@@ -68,12 +83,21 @@ public class EnemyCar extends Car {
     public List<Fireball> getFireballList() {
         return fireballList;
     }
+
+    /**
+     * render enemy car
+     */
     @Override
     public void render() {
         if (ENEMY_CAR != null) {
             ENEMY_CAR.draw(getX(), getY());
         }
     }
+
+    /**
+     * render fireball and handle the collision when fireball hit any of the damagable entity
+     * @param entities
+     */
     public void renderFireball(List<Entity> entities){
         List<Fireball> fireballsToRemove = new ArrayList<>();
         for (Fireball fireball : fireballList) {
@@ -88,9 +112,14 @@ public class EnemyCar extends Car {
         fireballList.removeAll(fireballsToRemove);
     }
 
+    /**
+     * handle fireball attack
+     * @param entities list of entity that can get damage from fireball
+     * @param fireball fireball that is attacking
+     */
     public void fireballCollision(List<Entity> entities, Fireball fireball) {
         for (Entity entity : entities) {
-            // Ensure the entity is not the fireball's owner and is visible
+            // check if the entity is not fireball's enemy car
             if (Utilities.checkCollision(entity, fireball) &&
                     !entity.equals(fireball.getOwnEnemyCar()) &&
                     entity.getVisible()) {
@@ -101,7 +130,7 @@ public class EnemyCar extends Car {
                     }
                 }else{fireball.attack((Damageable) entity);}
                 fireball.setVisible(false);
-                break; // Exit after the first collision
+                break;
             }
         }
     }

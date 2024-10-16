@@ -63,7 +63,6 @@ public class PlayerInfoScreen {
                 Double.parseDouble(GAME_PROPS.getProperty("home.title.y")), usernameDrawOption);
         nameMaker(input);
     }
-
     public String getUserName() {
         return userName;
     }

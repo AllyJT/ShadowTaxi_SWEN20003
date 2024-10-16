@@ -21,6 +21,10 @@ public class HomeScreen {
         ENTER_Y = Double.parseDouble(gameProps.getProperty("home.instruction.y"));
     }
 
+    /**
+     * render home screen
+     */
+
     public void render() {
         HOME.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
         double stringWidth = MESSAGE_FONT.getWidth(MESSAGE);
